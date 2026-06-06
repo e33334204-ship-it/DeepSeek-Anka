@@ -854,9 +854,9 @@ func desktopConfigDir() string {
 	dir, err := os.UserConfigDir()
 	if err != nil {
 		home, _ := os.UserHomeDir()
-		return filepath.Join(home, ".reasonix")
+		return filepath.Join(home, ".deepseek-anka")
 	}
-	return filepath.Join(dir, "reasonix")
+	return filepath.Join(dir, "deepseek-anka")
 }
 
 func (a *App) saveTabsLocked() {
@@ -2184,7 +2184,7 @@ func globalWorkspaceRoot() string {
 	dir, err := os.UserConfigDir()
 	if err != nil {
 		home, _ := os.UserHomeDir()
-		return filepath.Join(home, ".reasonix", "global-workspace")
+		return filepath.Join(home, ".deepseek-anka", "global-workspace")
 	}
 	return filepath.Join(dir, "reasonix", "global-workspace")
 }

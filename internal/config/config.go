@@ -846,7 +846,7 @@ func userConfigPath() string {
 	if err != nil {
 		return ""
 	}
-	return filepath.Join(dir, "reasonix", "config.toml")
+	return filepath.Join(dir, "deepseek-anka", "config.toml")
 }
 
 // UserConfigPath is the user-global config file (~/.config/deepseek-anka/config.toml),
@@ -865,7 +865,7 @@ func UserCredentialsPath() string {
 	if err != nil {
 		return ""
 	}
-	return filepath.Join(dir, "reasonix", "credentials")
+	return filepath.Join(dir, "deepseek-anka", "credentials")
 }
 
 // ArchiveDir is where compacted conversation history is archived for
@@ -876,7 +876,7 @@ func ArchiveDir() string {
 	if err != nil {
 		return ""
 	}
-	return filepath.Join(dir, "reasonix", "archive")
+	return filepath.Join(dir, "deepseek-anka", "archive")
 }
 
 // SessionDir is where chat sessions are persisted (one .jsonl per session).
@@ -887,7 +887,7 @@ func SessionDir() string {
 	if err != nil {
 		return ""
 	}
-	return filepath.Join(dir, "reasonix", "sessions")
+	return filepath.Join(dir, "deepseek-anka", "sessions")
 }
 
 // CacheDir is the per-user cache root for derived/regenerable artefacts: MCP
@@ -900,10 +900,10 @@ func CacheDir() string {
 	if err != nil {
 		return ""
 	}
-	return filepath.Join(dir, "reasonix", "cache")
+	return filepath.Join(dir, "deepseek-anka", "cache")
 }
 
-// MemoryUserDir returns the reasonix user config root (…/reasonix), under which
+// MemoryUserDir returns the deepseek-anka user config root (…/deepseek-anka), under which
 // the user-global REASONIX.md and the per-project auto-memory store live. Empty
 // when the user config dir can't be resolved, which disables user-scoped memory.
 func MemoryUserDir() string {
@@ -911,7 +911,7 @@ func MemoryUserDir() string {
 	if err != nil {
 		return ""
 	}
-	return filepath.Join(dir, "reasonix")
+	return filepath.Join(dir, "deepseek-anka")
 }
 
 // ConventionDirs are the parent directories scanned for agent assets (skills,
@@ -921,7 +921,7 @@ func MemoryUserDir() string {
 // the same set. Note: hooks are NOT scanned across these — a .claude/settings.json
 // uses a different hook schema that can't be parsed as ours, so hooks stay in
 // .deepseek-anka/settings.json (see internal/hook).
-var ConventionDirs = []string{".reasonix", ".agents", ".agent", ".claude"}
+var ConventionDirs = []string{".deepseek-anka", ".reasonix", ".agents", ".agent", ".claude"}
 
 // conventionSubdirsAsc joins sub under each ConventionDir of base, in ascending
 // priority (reverse of ConventionDirs) so the canonical .reasonix ends up the
