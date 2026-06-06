@@ -1,0 +1,64 @@
+// Image-capable model filtering for the vision model picker (openhanako OtherModelsSection).
+
+const IMAGE_MODEL_MARKERS = [
+  "gpt-4o",
+  "gpt-4-turbo",
+  "gpt-4.1",
+  "gpt-4.5",
+  "claude-3",
+  "claude-sonnet-4",
+  "claude-opus-4",
+  "gemini",
+  "qwen-vl",
+  "qwen2-vl",
+  "qwen3-vl",
+  "pixtral",
+  "llava",
+  "glm-4v",
+  "yi-vision",
+  "gpt-4-vision",
+  "vision",
+  "-vl",
+  "_vl",
+] as const;
+
+const DEEPSEEK_HOST_MARKERS = ["deepseek", "api.deepseek.com"] as const;
+
+/** Returns true when a provider/model ref likely supports direct image input. */
+export function isImageCapableRef(ref: string, providerBaseUrl = ""): boolean {
+  const trimmed = ref.trim();
+  if (!trimmed) return false;
+  const slash = trimmed.indexOf("/");
+  const provider = slash > 0 ? trimmed.slice(0, slash).toLowerCase() : "";
+  const model = (slash > 0 ? trimmed.slice(slash + 1) : trimmed).toLowerCase();
+  const base = providerBaseUrl.toLowerCase();
+
+  if (DEEPSEEK_HOST_MARKERS.some((m) => provider.includes(m) || base.includes(m))) {
+    return false;
+  }
+  return IMAGE_MODEL_MARKERS.some((m) => model.includes(m) || provider.includes(m));
+}
+
+export function visionModelRefs(
+  providers: { name: string; models: string[]; baseUrl?: string }[],
+): string[] {
+  const out: string[] = [];
+  for (const p of providers) {
+    const base = p.baseUrl || "";
+    for (const m of p.models) {
+      const ref = `${p.name}/${m}`;
+      if (isImageCapableRef(ref, base)) out.push(ref);
+    }
+  }
+  return out;
+}
+
+export function parseModelRef(raw: string): { id: string; provider: string } | null {
+  const s = raw.trim();
+  if (!s) return null;
+  const slash = s.indexOf("/");
+  if (slash > 0 && slash < s.length - 1) {
+    return { provider: s.slice(0, slash), id: s.slice(slash + 1) };
+  }
+  return { id: s, provider: "" };
+}
