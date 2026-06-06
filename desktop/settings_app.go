@@ -89,6 +89,11 @@ type ExtendedCapabilitiesView struct {
 	BrowserHeadless              bool   `json:"browserHeadless"`
 	BridgeEnabled                bool   `json:"bridgeEnabled"`
 	BridgeAddr                   string `json:"bridgeAddr"`
+	FeishuAppID                  string `json:"feishuAppId"`
+	FeishuAppSecret              string `json:"feishuAppSecret"`
+	WeChatBotToken               string `json:"wechatBotToken"`
+	QQAppID                      string `json:"qqAppId"`
+	QQAppSecret                  string `json:"qqAppSecret"`
 }
 
 // SettingsView is the whole Settings panel payload.
@@ -185,6 +190,11 @@ func (a *App) Settings() SettingsView {
 			BrowserHeadless:            cfg.Browser.Headless,
 			BridgeEnabled:              cfg.Bridge.Enabled,
 			BridgeAddr:                 cfg.Bridge.Addr,
+			FeishuAppID:               cfg.Bridge.Feishu.AppID,
+			FeishuAppSecret:           cfg.Bridge.Feishu.AppSecret,
+			WeChatBotToken:            cfg.Bridge.WeChat.BotToken,
+			QQAppID:                   cfg.Bridge.QQ.AppID,
+			QQAppSecret:               cfg.Bridge.QQ.AppSecret,
 		},
 		DesktopLanguage:   cfg.DesktopLanguage(),
 		DesktopTheme:      cfg.DesktopTheme(),
@@ -601,6 +611,11 @@ func (a *App) SetExtendedCapabilities(cap ExtendedCapabilitiesView) error {
 		if strings.TrimSpace(cap.BridgeAddr) != "" {
 			c.Bridge.Addr = strings.TrimSpace(cap.BridgeAddr)
 		}
+		c.Bridge.Feishu.AppID = strings.TrimSpace(cap.FeishuAppID)
+		c.Bridge.Feishu.AppSecret = strings.TrimSpace(cap.FeishuAppSecret)
+		c.Bridge.WeChat.BotToken = strings.TrimSpace(cap.WeChatBotToken)
+		c.Bridge.QQ.AppID = strings.TrimSpace(cap.QQAppID)
+		c.Bridge.QQ.AppSecret = strings.TrimSpace(cap.QQAppSecret)
 		return nil
 	})
 }

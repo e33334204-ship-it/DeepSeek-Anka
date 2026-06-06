@@ -497,6 +497,11 @@ export interface ExtendedCapabilitiesView {
   browserHeadless: boolean;
   bridgeEnabled: boolean;
   bridgeAddr: string;
+  feishuAppId: string;
+  feishuAppSecret: string;
+  wechatBotToken: string;
+  qqAppId: string;
+  qqAppSecret: string;
 }
 
 export interface SettingsView {

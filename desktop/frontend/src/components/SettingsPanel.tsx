@@ -615,6 +615,11 @@ function CapabilitiesSettingsSection({ s, busy, apply, onManageProviders }: Sect
     browserHeadless: true,
     bridgeEnabled: false,
     bridgeAddr: "127.0.0.1:8787",
+    feishuAppId: "",
+    feishuAppSecret: "",
+    wechatBotToken: "",
+    qqAppId: "",
+    qqAppSecret: "",
   };
 
   const patch = (next: Partial<ExtendedCapabilitiesView>) =>
@@ -672,6 +677,29 @@ function CapabilitiesSettingsSection({ s, busy, apply, onManageProviders }: Sect
               disabled={busy || !cap.bridgeEnabled}
               onChange={(e) => void patch({ bridgeAddr: e.target.value })}
             />
+          </div>
+          <p className="settings-hint">{t("settings.cap.bridgeFeishu")}</p>
+          <div className="set-row">
+            <label className="set-label">App ID</label>
+            <input className="mem-input set-grow" value={cap.feishuAppId} disabled={busy || !cap.bridgeEnabled} onChange={(e) => void patch({ feishuAppId: e.target.value })} />
+          </div>
+          <div className="set-row">
+            <label className="set-label">App Secret</label>
+            <input className="mem-input set-grow" type="password" value={cap.feishuAppSecret} disabled={busy || !cap.bridgeEnabled} onChange={(e) => void patch({ feishuAppSecret: e.target.value })} />
+          </div>
+          <p className="settings-hint">{t("settings.cap.bridgeWeChat")}</p>
+          <div className="set-row">
+            <label className="set-label">Bot Token</label>
+            <input className="mem-input set-grow" type="password" value={cap.wechatBotToken} disabled={busy || !cap.bridgeEnabled} onChange={(e) => void patch({ wechatBotToken: e.target.value })} />
+          </div>
+          <p className="settings-hint">{t("settings.cap.bridgeQQ")}</p>
+          <div className="set-row">
+            <label className="set-label">App ID</label>
+            <input className="mem-input set-grow" value={cap.qqAppId} disabled={busy || !cap.bridgeEnabled} onChange={(e) => void patch({ qqAppId: e.target.value })} />
+          </div>
+          <div className="set-row">
+            <label className="set-label">App Secret</label>
+            <input className="mem-input set-grow" type="password" value={cap.qqAppSecret} disabled={busy || !cap.bridgeEnabled} onChange={(e) => void patch({ qqAppSecret: e.target.value })} />
           </div>
         </div>
       </div>

@@ -526,6 +526,11 @@ function makeMockApp(): AppBindings {
       browserHeadless: true,
       bridgeEnabled: false,
       bridgeAddr: "127.0.0.1:8787",
+      feishuAppId: "",
+      feishuAppSecret: "",
+      wechatBotToken: "",
+      qqAppId: "",
+      qqAppSecret: "",
     },
     providers: [
       { name: "deepseek-flash", kind: "openai", baseUrl: "https://api.deepseek.com", models: ["deepseek-v4-flash"], default: "deepseek-v4-flash", apiKeyEnv: "DEEPSEEK_API_KEY", keySet: true, balanceUrl: "https://api.deepseek.com/user/balance", contextWindow: 1_000_000 },
