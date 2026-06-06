@@ -1460,7 +1460,7 @@ function makeMockApp(): AppBindings {
     },
     async OpenDownloadPage() {
       if (typeof window !== "undefined") {
-        window.open("https://github.com/esengine/reasonix/releases/latest", "_blank", "noopener");
+        window.open("https://github.com/e33334204-ship-it/DeepSeek-Anka/releases/latest", "_blank", "noopener");
       }
     },
     // Dev seam: drives the overlay flow in the browser until ConnectKey sets the
