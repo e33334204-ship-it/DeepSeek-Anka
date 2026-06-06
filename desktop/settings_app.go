@@ -565,23 +565,24 @@ func (a *App) MigrateDesktopPreferences(language, theme, style string) error {
 }
 
 // SetVision configures auxiliary vision (requires a separate vision-capable model).
+// When enabling without a model, just save enabled=true — the model can be set
+// afterwards. Validation only fires when both enabled AND a model is set.
 func (a *App) SetVision(enabled bool, model string) error {
 	return a.applyConfigChange(func(c *config.Config) error {
 		c.Vision.Enabled = enabled
-		c.Vision.Model = strings.TrimSpace(model)
-		if enabled {
-			if c.Vision.Model == "" {
-				return fmt.Errorf("vision model is required when vision is enabled")
-			}
+		if model != "" {
+			c.Vision.Model = strings.TrimSpace(model)
+		}
+		if enabled && c.Vision.Model != "" {
 			rc, err := vision.ResolveVisionConfig(c)
 			if err != nil {
 				return err
 			}
 			if rc == nil || rc.Entry == nil {
-				return fmt.Errorf("vision model %q not found in [[providers]]", c.Vision.Model)
+				return fmt.Errorf("vision model %q not found in [[providers]]. Add a vision-capable provider first (e.g. GPT-4o).", c.Vision.Model)
 			}
 			if !vision.ModelSupportsImage(rc.Entry, rc.ModelID) {
-				return fmt.Errorf("vision model must support image input (select a vision-capable model such as gpt-4o or qwen-vl-max)")
+				return fmt.Errorf("vision model must support image input. Select a vision-capable model such as gpt-4o or qwen-vl-max")
 			}
 		}
 		return nil
