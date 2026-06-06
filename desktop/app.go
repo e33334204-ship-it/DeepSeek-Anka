@@ -63,6 +63,8 @@ type App struct {
 	readyHook   func()
 
 	forceQuit atomic.Bool
+
+	bridge *bridgeRuntime
 }
 
 // NewApp constructs the bound object. Tabs are restored in startup from the
@@ -207,6 +209,10 @@ func (a *App) createTabEntryWithID(scope, workspaceRoot, topicID, id string) *Wo
 
 // shutdown snapshots all tabs, saves the final window geometry, and closes tabs.
 func (a *App) shutdown(context.Context) {
+	a.bridgeRT().mu.Lock()
+	a.stopBridgeSidecarLocked(a.bridgeRT())
+	a.bridgeRT().mu.Unlock()
+
 	// Save window geometry synchronously from Go so it's persisted even if the
 	// frontend's beforeunload promise hasn't resolved yet.
 	a.saveWindowStateSync()

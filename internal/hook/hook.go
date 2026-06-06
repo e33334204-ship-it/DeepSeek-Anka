@@ -122,7 +122,7 @@ func (h ResolvedHook) timeout() time.Duration {
 
 // SettingsDirname / SettingsFilename locate a scope's settings.json.
 const (
-	SettingsDirname  = ".reasonix"
+	SettingsDirname  = ".deepseek-anka"
 	SettingsFilename = "settings.json"
 )
 

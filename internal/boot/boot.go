@@ -122,7 +122,7 @@ func Build(ctx context.Context, opts Options) (*control.Controller, error) {
 	sink := event.Sync(opts.Sink)
 
 	if migErr != nil {
-		sink.Emit(event.Event{Kind: event.Notice, Level: event.LevelWarn, Text: "config migration from ~/.reasonix failed: " + migErr.Error()})
+		sink.Emit(event.Event{Kind: event.Notice, Level: event.LevelWarn, Text: "config migration from legacy reasonix/deepseek-anka config failed: " + migErr.Error()})
 	} else if migrated != nil {
 		sink.Emit(event.Event{Kind: event.Notice, Level: event.LevelInfo, Text: migrated.Notice()})
 	}
@@ -132,8 +132,17 @@ func Build(ctx context.Context, opts Options) (*control.Controller, error) {
 	// by its own marker, so running every boot imports any not-yet-imported session
 	// once and is a cheap no-op afterwards.
 	if home, herr := os.UserHomeDir(); herr == nil {
-		if n, serr := agent.MigrateLegacySessions(filepath.Join(home, ".reasonix", "sessions"), config.SessionDir()); serr == nil && n > 0 {
-			sink.Emit(event.Event{Kind: event.Notice, Level: event.LevelInfo, Text: fmt.Sprintf("imported %d past session(s) from ~/.deepseek-anka/sessions — resume them with --resume or the history panel", n)})
+		var imported int
+		for _, legacy := range []string{
+			filepath.Join(home, ".deepseek-anka", "sessions"),
+			filepath.Join(home, ".reasonix", "sessions"),
+		} {
+			if n, serr := agent.MigrateLegacySessions(legacy, config.SessionDir()); serr == nil {
+				imported += n
+			}
+		}
+		if imported > 0 {
+			sink.Emit(event.Event{Kind: event.Notice, Level: event.LevelInfo, Text: fmt.Sprintf("imported %d past session(s) from legacy session dirs — resume them with --resume or the history panel", imported)})
 		}
 	}
 

@@ -34,6 +34,7 @@ import type {
   SessionMeta,
   SettingsView,
   ExtendedCapabilitiesView,
+  BridgeStatusView,
   SkillRootView,
   SkillView,
   SlashArgsResult,
@@ -166,6 +167,8 @@ export interface AppBindings {
   SetPlannerModel(ref: string): Promise<void>;
   SetVision(enabled: boolean, model: string): Promise<void>;
   SetExtendedCapabilities(cap: ExtendedCapabilitiesView): Promise<void>;
+  BridgeStatus(): Promise<BridgeStatusView>;
+  RestartBridge(): Promise<void>;
   SetAutoPlan(mode: string): Promise<void>;
   SaveProvider(p: ProviderView): Promise<void>;
   DeleteProvider(name: string): Promise<void>;
@@ -519,6 +522,7 @@ function makeMockApp(): AppBindings {
     plannerModel: "",
     autoPlan: "off",
     vision: { enabled: false, model: "", modelRef: null },
+    visionModelCandidates: ["openai/gpt-4o"],
     capabilities: {
       computerEnabled: false,
       allowWindowsInputInjection: false,
@@ -526,9 +530,12 @@ function makeMockApp(): AppBindings {
       browserHeadless: true,
       bridgeEnabled: false,
       bridgeAddr: "127.0.0.1:8787",
+      feishuEnabled: false,
       feishuAppId: "",
       feishuAppSecret: "",
+      wechatEnabled: false,
       wechatBotToken: "",
+      qqEnabled: false,
       qqAppId: "",
       qqAppSecret: "",
     },
@@ -1274,14 +1281,14 @@ function makeMockApp(): AppBindings {
       console.info("mock RevealPath", path);
     },
     async SavePastedImage(_dataUrl: string) {
-      return ".reasonix/attachments/mock.png";
+      return ".deepseek-anka/attachments/mock.png";
     },
     async SavePastedFile(name: string, _dataUrl: string) {
-      return `.reasonix/attachments/mock-${name}`;
+      return `.deepseek-anka/attachments/mock-${name}`;
     },
     async AttachDropped(path: string) {
       const name = path.split(/[/\\]/).filter(Boolean).pop() ?? path;
-      return { kind: "attachment" as const, path: `.reasonix/attachments/mock-${name}` };
+      return { kind: "attachment" as const, path: `.deepseek-anka/attachments/mock-${name}` };
     },
     async AttachmentDataURL(_path: string) {
       return "data:image/png;base64,iVBORw0KGgo=";
@@ -1373,6 +1380,21 @@ function makeMockApp(): AppBindings {
     async SetExtendedCapabilities(cap: ExtendedCapabilitiesView) {
       settings.capabilities = { ...cap };
     },
+    async BridgeStatus() {
+      const cap = settings.capabilities;
+      return {
+        bridgeEnabled: cap.bridgeEnabled,
+        sidecarRunning: false,
+        serveRunning: false,
+        addr: cap.bridgeAddr,
+        platforms: [
+          { platform: "feishu", enabled: cap.feishuEnabled, configured: !!cap.feishuAppId && !!cap.feishuAppSecret },
+          { platform: "wechat", enabled: cap.wechatEnabled, configured: !!cap.wechatBotToken },
+          { platform: "qq", enabled: cap.qqEnabled, configured: !!cap.qqAppId && !!cap.qqAppSecret },
+        ],
+      };
+    },
+    async RestartBridge() {},
     async SetAutoPlan(mode: string) {
       settings.autoPlan = mode;
     },

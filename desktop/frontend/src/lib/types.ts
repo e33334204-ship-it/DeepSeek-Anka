@@ -497,11 +497,29 @@ export interface ExtendedCapabilitiesView {
   browserHeadless: boolean;
   bridgeEnabled: boolean;
   bridgeAddr: string;
+  feishuEnabled: boolean;
   feishuAppId: string;
   feishuAppSecret: string;
+  wechatEnabled: boolean;
   wechatBotToken: string;
+  qqEnabled: boolean;
   qqAppId: string;
   qqAppSecret: string;
+}
+
+export interface BridgePlatformStatusView {
+  platform: string;
+  enabled: boolean;
+  configured: boolean;
+}
+
+export interface BridgeStatusView {
+  bridgeEnabled: boolean;
+  sidecarRunning: boolean;
+  serveRunning: boolean;
+  addr: string;
+  platforms: BridgePlatformStatusView[];
+  error?: string;
 }
 
 export interface SettingsView {
@@ -509,6 +527,7 @@ export interface SettingsView {
   plannerModel: string;
   autoPlan: string;
   vision: VisionView;
+  visionModelCandidates?: string[];
   capabilities: ExtendedCapabilitiesView;
   providers: ProviderView[];
   permissions: PermissionsView;

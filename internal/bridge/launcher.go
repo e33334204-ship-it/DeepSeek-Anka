@@ -37,26 +37,42 @@ type configBridgeQQ struct {
 	DMGuildMap map[string]string `json:"dm_guild_map"`
 }
 
-// ExtensionsDir returns the extensions/bridge directory relative to the repo.
+// ExtensionsDir returns the extensions/bridge directory (repo root or install layout).
 func ExtensionsDir() (string, error) {
-	exe, err := os.Executable()
-	if err != nil {
-		return "", err
-	}
-	// Development: walk up from executable or use cwd
-	candidates := []string{
-		filepath.Join(filepath.Dir(exe), "extensions", "bridge"),
-		filepath.Join("extensions", "bridge"),
+	var candidates []string
+	if exe, err := os.Executable(); err == nil {
+		dir := filepath.Dir(exe)
+		for i := 0; i < 6; i++ {
+			candidates = append(candidates, filepath.Join(dir, "extensions", "bridge"))
+			parent := filepath.Dir(dir)
+			if parent == dir {
+				break
+			}
+			dir = parent
+		}
 	}
 	if wd, err := os.Getwd(); err == nil {
-		candidates = append(candidates, filepath.Join(wd, "extensions", "bridge"))
+		dir := wd
+		for i := 0; i < 6; i++ {
+			candidates = append(candidates, filepath.Join(dir, "extensions", "bridge"))
+			parent := filepath.Dir(dir)
+			if parent == dir {
+				break
+			}
+			dir = parent
+		}
 	}
+	seen := map[string]bool{}
 	for _, c := range candidates {
+		if seen[c] {
+			continue
+		}
+		seen[c] = true
 		if st, err := os.Stat(filepath.Join(c, "index.js")); err == nil && !st.IsDir() {
 			return c, nil
 		}
 	}
-	return "", fmt.Errorf("extensions/bridge not found; run from DeepSeek-Reasonix repo root")
+	return "", fmt.Errorf("extensions/bridge not found; run from DeepSeek-Anka repo root or install extensions/bridge beside the binary")
 }
 
 // WriteConfigFile serializes bridge config for the Node sidecar.

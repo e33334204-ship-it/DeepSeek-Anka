@@ -18,13 +18,14 @@ func TestCommandDirsIncludeConventions(t *testing.T) {
 		filepath.Join(".agents", "commands"),
 		filepath.Join(".agent", "commands"),
 		filepath.Join(".reasonix", "commands"),
+		filepath.Join(".deepseek-anka", "commands"),
 	} {
 		if !strings.Contains(joined, want) {
 			t.Errorf("CommandDirs missing %q\ngot:\n%s", want, joined)
 		}
 	}
 	// The project's .deepseek-anka/commands must be the highest-priority (last) entry.
-	if last := dirs[len(dirs)-1]; last != filepath.Join(".reasonix", "commands") {
+	if last := dirs[len(dirs)-1]; last != filepath.Join(".deepseek-anka", "commands") {
 		t.Errorf("project .deepseek-anka/commands should be highest priority (last), got %q", last)
 	}
 }

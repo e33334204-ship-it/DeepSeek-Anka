@@ -59,4 +59,4 @@ require (
 	golang.org/x/net v0.55.0 // indirect
 )
 
-replace deepseek-anka => D:\DeepSeek-Reasonix
+replace deepseek-anka => ../

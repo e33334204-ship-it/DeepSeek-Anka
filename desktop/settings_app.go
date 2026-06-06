@@ -83,17 +83,20 @@ type VisionView struct {
 
 // ExtendedCapabilitiesView holds openhanako-ported capability toggles.
 type ExtendedCapabilitiesView struct {
-	ComputerEnabled              bool   `json:"computerEnabled"`
-	AllowWindowsInputInjection   bool   `json:"allowWindowsInputInjection"`
-	BrowserEnabled               bool   `json:"browserEnabled"`
-	BrowserHeadless              bool   `json:"browserHeadless"`
-	BridgeEnabled                bool   `json:"bridgeEnabled"`
-	BridgeAddr                   string `json:"bridgeAddr"`
-	FeishuAppID                  string `json:"feishuAppId"`
-	FeishuAppSecret              string `json:"feishuAppSecret"`
-	WeChatBotToken               string `json:"wechatBotToken"`
-	QQAppID                      string `json:"qqAppId"`
-	QQAppSecret                  string `json:"qqAppSecret"`
+	ComputerEnabled            bool   `json:"computerEnabled"`
+	AllowWindowsInputInjection bool   `json:"allowWindowsInputInjection"`
+	BrowserEnabled             bool   `json:"browserEnabled"`
+	BrowserHeadless            bool   `json:"browserHeadless"`
+	BridgeEnabled              bool   `json:"bridgeEnabled"`
+	BridgeAddr                 string `json:"bridgeAddr"`
+	FeishuEnabled              bool   `json:"feishuEnabled"`
+	FeishuAppID                string `json:"feishuAppId"`
+	FeishuAppSecret            string `json:"feishuAppSecret"`
+	WeChatEnabled              bool   `json:"wechatEnabled"`
+	WeChatBotToken             string `json:"wechatBotToken"`
+	QQEnabled                  bool   `json:"qqEnabled"`
+	QQAppID                    string `json:"qqAppId"`
+	QQAppSecret                string `json:"qqAppSecret"`
 }
 
 // SettingsView is the whole Settings panel payload.
@@ -112,7 +115,8 @@ type SettingsView struct {
 	DesktopTheme      string          `json:"desktopTheme"`
 	DesktopThemeStyle string          `json:"desktopThemeStyle"`
 	CloseBehavior     string          `json:"closeBehavior"`
-	ConfigPath        string          `json:"configPath"`
+	ConfigPath            string   `json:"configPath"`
+	VisionModelCandidates []string `json:"visionModelCandidates"`
 	// ProviderKinds lists the provider implementations the kernel actually
 	// registered (provider.Kinds()), so the editor's "kind" picker offers only
 	// kinds that resolve — selecting an unregistered one would fail the rebuild.
@@ -190,12 +194,16 @@ func (a *App) Settings() SettingsView {
 			BrowserHeadless:            cfg.Browser.Headless,
 			BridgeEnabled:              cfg.Bridge.Enabled,
 			BridgeAddr:                 cfg.Bridge.Addr,
-			FeishuAppID:               cfg.Bridge.Feishu.AppID,
-			FeishuAppSecret:           cfg.Bridge.Feishu.AppSecret,
-			WeChatBotToken:            cfg.Bridge.WeChat.BotToken,
-			QQAppID:                   cfg.Bridge.QQ.AppID,
-			QQAppSecret:               cfg.Bridge.QQ.AppSecret,
+			FeishuEnabled:              cfg.Bridge.Feishu.Enabled,
+			FeishuAppID:                cfg.Bridge.Feishu.AppID,
+			FeishuAppSecret:            cfg.Bridge.Feishu.AppSecret,
+			WeChatEnabled:              cfg.Bridge.WeChat.Enabled,
+			WeChatBotToken:             cfg.Bridge.WeChat.BotToken,
+			QQEnabled:                  cfg.Bridge.QQ.Enabled,
+			QQAppID:                    cfg.Bridge.QQ.AppID,
+			QQAppSecret:                cfg.Bridge.QQ.AppSecret,
 		},
+		VisionModelCandidates: visionModelCandidates(cfg),
 		DesktopLanguage:   cfg.DesktopLanguage(),
 		DesktopTheme:      cfg.DesktopTheme(),
 		DesktopThemeStyle: cfg.DesktopThemeStyle(),
@@ -565,28 +573,54 @@ func (a *App) MigrateDesktopPreferences(language, theme, style string) error {
 }
 
 // SetVision configures auxiliary vision (requires a separate vision-capable model).
-// When enabling without a model, just save enabled=true — the model can be set
-// afterwards. Validation only fires when both enabled AND a model is set.
+// Toggling enabled alone does not validate a previously stored model — validation
+// runs only when model is explicitly set in the same call.
 func (a *App) SetVision(enabled bool, model string) error {
 	return a.applyConfigChange(func(c *config.Config) error {
 		c.Vision.Enabled = enabled
-		if model != "" {
-			c.Vision.Model = strings.TrimSpace(model)
+		if !enabled {
+			return nil
 		}
-		if enabled && c.Vision.Model != "" {
-			rc, err := vision.ResolveVisionConfig(c)
-			if err != nil {
-				return err
-			}
-			if rc == nil || rc.Entry == nil {
-				return fmt.Errorf("vision model %q not found in [[providers]]. Add a vision-capable provider first (e.g. GPT-4o).", c.Vision.Model)
-			}
-			if !vision.ModelSupportsImage(rc.Entry, rc.ModelID) {
-				return fmt.Errorf("vision model must support image input. Select a vision-capable model such as gpt-4o or qwen-vl-max")
-			}
+		ref := strings.TrimSpace(model)
+		if ref == "" {
+			return nil
+		}
+		c.Vision.Model = ref
+		rc, err := vision.ResolveVisionConfig(c)
+		if err != nil {
+			return err
+		}
+		if rc == nil || rc.Entry == nil {
+			return fmt.Errorf("vision model %q not found in [[providers]]. Add a vision-capable provider first (e.g. GPT-4o).", ref)
+		}
+		if !vision.ModelSupportsImage(rc.Entry, rc.ModelID) {
+			return fmt.Errorf("vision model must support image input. Select a vision-capable model such as gpt-4o or qwen-vl-max")
 		}
 		return nil
 	})
+}
+
+func visionModelCandidates(cfg *config.Config) []string {
+	if cfg == nil {
+		return []string{}
+	}
+	out := []string{}
+	seen := map[string]bool{}
+	for i := range cfg.Providers {
+		p := &cfg.Providers[i]
+		for _, m := range p.ModelList() {
+			if !vision.ModelSupportsImage(p, m) {
+				continue
+			}
+			ref := p.Name + "/" + m
+			if seen[ref] {
+				continue
+			}
+			seen[ref] = true
+			out = append(out, ref)
+		}
+	}
+	return out
 }
 
 func visionViewFromConfig(cfg *config.Config) VisionView {
@@ -603,7 +637,7 @@ func visionViewFromConfig(cfg *config.Config) VisionView {
 
 // SetExtendedCapabilities updates computer/browser/bridge toggles.
 func (a *App) SetExtendedCapabilities(cap ExtendedCapabilitiesView) error {
-	return a.applyConfigChange(func(c *config.Config) error {
+	err := a.applyConfigChange(func(c *config.Config) error {
 		c.Computer.Enabled = cap.ComputerEnabled
 		c.Computer.AllowWindowsInputInjection = cap.AllowWindowsInputInjection
 		c.Browser.Enabled = cap.BrowserEnabled
@@ -612,13 +646,27 @@ func (a *App) SetExtendedCapabilities(cap ExtendedCapabilitiesView) error {
 		if strings.TrimSpace(cap.BridgeAddr) != "" {
 			c.Bridge.Addr = strings.TrimSpace(cap.BridgeAddr)
 		}
+		if c.Bridge.Addr == "" {
+			c.Bridge.Addr = "127.0.0.1:8787"
+		}
+		c.Bridge.Feishu.Enabled = cap.FeishuEnabled
 		c.Bridge.Feishu.AppID = strings.TrimSpace(cap.FeishuAppID)
 		c.Bridge.Feishu.AppSecret = strings.TrimSpace(cap.FeishuAppSecret)
+		c.Bridge.WeChat.Enabled = cap.WeChatEnabled
 		c.Bridge.WeChat.BotToken = strings.TrimSpace(cap.WeChatBotToken)
+		c.Bridge.QQ.Enabled = cap.QQEnabled
 		c.Bridge.QQ.AppID = strings.TrimSpace(cap.QQAppID)
 		c.Bridge.QQ.AppSecret = strings.TrimSpace(cap.QQAppSecret)
+		if cap.FeishuEnabled || cap.WeChatEnabled || cap.QQEnabled {
+			c.Bridge.Enabled = true
+		}
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+	a.syncBridgeSidecar()
+	return nil
 }
 
 // SetAgentParams updates sampling temperature, the optional max-steps guard, and

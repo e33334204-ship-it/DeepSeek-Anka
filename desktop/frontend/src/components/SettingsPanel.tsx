@@ -17,7 +17,7 @@ import {
   type Theme,
   type ThemeStyle,
 } from "../lib/theme";
-import type { ExtendedCapabilitiesView, NetworkView, ProviderView, SettingsView } from "../lib/types";
+import type { BridgeStatusView, ExtendedCapabilitiesView, NetworkView, ProviderView, SettingsView } from "../lib/types";
 import { InlineConfirmButton } from "./InlineConfirmButton";
 import { ResizableDrawer } from "./ResizableDrawer";
 import { Tooltip } from "./Tooltip";
@@ -279,7 +279,16 @@ function normalizeSettingsView(view: SettingsView | null | undefined): SettingsV
       browserHeadless: true,
       bridgeEnabled: false,
       bridgeAddr: "127.0.0.1:8787",
+      feishuEnabled: false,
+      feishuAppId: "",
+      feishuAppSecret: "",
+      wechatEnabled: false,
+      wechatBotToken: "",
+      qqEnabled: false,
+      qqAppId: "",
+      qqAppSecret: "",
     },
+    visionModelCandidates: asArray(view.visionModelCandidates),
     desktopLanguage: normalizeLangPref(view.desktopLanguage),
     desktopTheme: normalizeThemePreference(view.desktopTheme),
     desktopThemeStyle: normalizeThemeStyleForTheme(view.desktopThemeStyle, normalizeThemePreference(view.desktopTheme)),
@@ -482,7 +491,7 @@ function NetworkSection({ s, busy, apply }: SectionProps) {
 function ModelsSection({ s, busy, apply, onManageProviders }: SectionProps & { onManageProviders: () => void }) {
   const t = useT();
   const refs = allRefs(s);
-  const visionRefs = visionModelRefs(s.providers);
+  const visionRefs = (s.visionModelCandidates?.length ? s.visionModelCandidates : visionModelRefs(s.providers));
   const defaultRef = toRef(s.defaultModel, s);
   const plannerRef = toRef(s.plannerModel, s);
   const visionRef = toRef(s.vision?.model || "", s);
@@ -545,8 +554,7 @@ function ModelsSection({ s, busy, apply, onManageProviders }: SectionProps & { o
             disabled={busy}
             onChange={(e) => {
               const enabled = e.target.checked;
-              const model = s.vision?.model || "";
-              void apply(() => app.SetVision(enabled, model));
+              void apply(() => app.SetVision(enabled, enabled ? "" : s.vision?.model || ""));
             }}
           />
           <span>{t("settings.vision.enabled")}</span>
@@ -559,7 +567,10 @@ function ModelsSection({ s, busy, apply, onManageProviders }: SectionProps & { o
           className="mem-select set-grow"
           value={visionRef}
           disabled={busy || !(s.vision?.enabled ?? false)}
-          onChange={(e) => void apply(() => app.SetVision(true, e.target.value))}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (v) void apply(() => app.SetVision(true, v));
+          }}
         >
           <option value="">{t("settings.vision.modelPlaceholder")}</option>
           {visionRefs.map((r) => (
@@ -615,15 +626,36 @@ function CapabilitiesSettingsSection({ s, busy, apply, onManageProviders }: Sect
     browserHeadless: true,
     bridgeEnabled: false,
     bridgeAddr: "127.0.0.1:8787",
+    feishuEnabled: false,
     feishuAppId: "",
     feishuAppSecret: "",
+    wechatEnabled: false,
     wechatBotToken: "",
+    qqEnabled: false,
     qqAppId: "",
     qqAppSecret: "",
   };
+  const [bridgeDraft, setBridgeDraft] = useState(cap);
+  const [bridgeStatus, setBridgeStatus] = useState<BridgeStatusView | null>(null);
+  useEffect(() => setBridgeDraft(cap), [cap]);
+  useEffect(() => {
+    void app.BridgeStatus().then(setBridgeStatus).catch(() => setBridgeStatus(null));
+  }, [cap.bridgeEnabled, cap.feishuEnabled, cap.wechatEnabled, cap.qqEnabled, busy]);
 
   const patch = (next: Partial<ExtendedCapabilitiesView>) =>
     apply(() => app.SetExtendedCapabilities({ ...cap, ...next }));
+
+  const bridgeDirty =
+    bridgeDraft.feishuAppId !== cap.feishuAppId ||
+    bridgeDraft.feishuAppSecret !== cap.feishuAppSecret ||
+    bridgeDraft.wechatBotToken !== cap.wechatBotToken ||
+    bridgeDraft.qqAppId !== cap.qqAppId ||
+    bridgeDraft.qqAppSecret !== cap.qqAppSecret ||
+    bridgeDraft.bridgeAddr !== cap.bridgeAddr;
+
+  const saveBridge = () => void apply(() => app.SetExtendedCapabilities({ ...cap, ...bridgeDraft }));
+
+  const platformStatus = (name: string) => bridgeStatus?.platforms?.find((p) => p.platform === name);
 
   return (
     <section className="mem-section">
@@ -669,37 +701,82 @@ function CapabilitiesSettingsSection({ s, busy, apply, onManageProviders }: Sect
             <input type="checkbox" checked={cap.bridgeEnabled} disabled={busy} onChange={(e) => void patch({ bridgeEnabled: e.target.checked })} />
             <span>{t("settings.cap.bridgeEnabled")}</span>
           </label>
+          {bridgeStatus && (
+            <p className="settings-hint">
+              {bridgeStatus.sidecarRunning ? t("settings.cap.bridgeRunning") : t("settings.cap.bridgeStopped")}
+              {bridgeStatus.error ? ` — ${bridgeStatus.error}` : ""}
+            </p>
+          )}
           <div className="set-row">
             <label className="set-label">{t("settings.cap.bridgeAddr")}</label>
             <input
               className="mem-input set-grow"
-              value={cap.bridgeAddr}
+              value={bridgeDraft.bridgeAddr}
               disabled={busy || !cap.bridgeEnabled}
-              onChange={(e) => void patch({ bridgeAddr: e.target.value })}
+              onChange={(e) => setBridgeDraft({ ...bridgeDraft, bridgeAddr: e.target.value })}
             />
           </div>
+
           <p className="settings-hint">{t("settings.cap.bridgeFeishu")}</p>
+          <label className="set-check">
+            <input
+              type="checkbox"
+              checked={cap.feishuEnabled}
+              disabled={busy || !cap.bridgeEnabled}
+              onChange={(e) => void patch({ feishuEnabled: e.target.checked })}
+            />
+            <span>{t("settings.cap.feishuEnabled")}{platformStatus("feishu")?.configured ? ` · ${t("settings.cap.configured")}` : ""}</span>
+          </label>
           <div className="set-row">
             <label className="set-label">App ID</label>
-            <input className="mem-input set-grow" value={cap.feishuAppId} disabled={busy || !cap.bridgeEnabled} onChange={(e) => void patch({ feishuAppId: e.target.value })} />
+            <input className="mem-input set-grow" value={bridgeDraft.feishuAppId} disabled={busy || !cap.bridgeEnabled} onChange={(e) => setBridgeDraft({ ...bridgeDraft, feishuAppId: e.target.value })} />
           </div>
           <div className="set-row">
             <label className="set-label">App Secret</label>
-            <input className="mem-input set-grow" type="password" value={cap.feishuAppSecret} disabled={busy || !cap.bridgeEnabled} onChange={(e) => void patch({ feishuAppSecret: e.target.value })} />
+            <input className="mem-input set-grow" type="password" value={bridgeDraft.feishuAppSecret} disabled={busy || !cap.bridgeEnabled} onChange={(e) => setBridgeDraft({ ...bridgeDraft, feishuAppSecret: e.target.value })} />
           </div>
+
           <p className="settings-hint">{t("settings.cap.bridgeWeChat")}</p>
+          <label className="set-check">
+            <input
+              type="checkbox"
+              checked={cap.wechatEnabled}
+              disabled={busy || !cap.bridgeEnabled}
+              onChange={(e) => void patch({ wechatEnabled: e.target.checked })}
+            />
+            <span>{t("settings.cap.wechatEnabled")}{platformStatus("wechat")?.configured ? ` · ${t("settings.cap.configured")}` : ""}</span>
+          </label>
           <div className="set-row">
             <label className="set-label">Bot Token</label>
-            <input className="mem-input set-grow" type="password" value={cap.wechatBotToken} disabled={busy || !cap.bridgeEnabled} onChange={(e) => void patch({ wechatBotToken: e.target.value })} />
+            <input className="mem-input set-grow" type="password" value={bridgeDraft.wechatBotToken} disabled={busy || !cap.bridgeEnabled} onChange={(e) => setBridgeDraft({ ...bridgeDraft, wechatBotToken: e.target.value })} />
           </div>
+
           <p className="settings-hint">{t("settings.cap.bridgeQQ")}</p>
+          <label className="set-check">
+            <input
+              type="checkbox"
+              checked={cap.qqEnabled}
+              disabled={busy || !cap.bridgeEnabled}
+              onChange={(e) => void patch({ qqEnabled: e.target.checked })}
+            />
+            <span>{t("settings.cap.qqEnabled")}{platformStatus("qq")?.configured ? ` · ${t("settings.cap.configured")}` : ""}</span>
+          </label>
           <div className="set-row">
             <label className="set-label">App ID</label>
-            <input className="mem-input set-grow" value={cap.qqAppId} disabled={busy || !cap.bridgeEnabled} onChange={(e) => void patch({ qqAppId: e.target.value })} />
+            <input className="mem-input set-grow" value={bridgeDraft.qqAppId} disabled={busy || !cap.bridgeEnabled} onChange={(e) => setBridgeDraft({ ...bridgeDraft, qqAppId: e.target.value })} />
           </div>
           <div className="set-row">
             <label className="set-label">App Secret</label>
-            <input className="mem-input set-grow" type="password" value={cap.qqAppSecret} disabled={busy || !cap.bridgeEnabled} onChange={(e) => void patch({ qqAppSecret: e.target.value })} />
+            <input className="mem-input set-grow" type="password" value={bridgeDraft.qqAppSecret} disabled={busy || !cap.bridgeEnabled} onChange={(e) => setBridgeDraft({ ...bridgeDraft, qqAppSecret: e.target.value })} />
+          </div>
+
+          <div className="prov-card__actions">
+            <button className="btn btn--primary btn--small" disabled={busy || !bridgeDirty} onClick={saveBridge}>
+              {t("settings.cap.saveBridge")}
+            </button>
+            <button className="btn btn--small" disabled={busy || !cap.bridgeEnabled} onClick={() => void apply(() => app.RestartBridge())}>
+              {t("settings.cap.restartBridge")}
+            </button>
           </div>
         </div>
       </div>
