@@ -5,10 +5,10 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/agent"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/provider"
+	"deepseek-anka/internal/tool"
 )
 
 // scriptedTurns is a provider that replays a distinct chunk set per Stream call,

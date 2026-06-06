@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"testing"
 
-	"reasonix/desktop/internal/update"
+	"deepseek-anka/desktop/internal/update"
 )
 
 func TestNormalizeVersion(t *testing.T) {

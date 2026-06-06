@@ -21,8 +21,8 @@ import (
 	"strings"
 	"time"
 
-	"reasonix/internal/config"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/tool"
 )
 
 // cacheableToolsOf extracts the persistable subset of remote tools so Start()

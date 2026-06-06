@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/provider"
+	"deepseek-anka/internal/tool"
 )
 
 type cacheDiagProvider struct {

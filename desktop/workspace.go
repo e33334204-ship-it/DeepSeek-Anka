@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"reasonix/internal/config"
+	"deepseek-anka/internal/config"
 )
 
 // The desktop is a GUI app: launched from Finder or `open`, it starts with the

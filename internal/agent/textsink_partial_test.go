@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/event"
+	"deepseek-anka/internal/event"
 )
 
 // TestTextSinkSkipsPartialDispatch probes the headless sink against the early

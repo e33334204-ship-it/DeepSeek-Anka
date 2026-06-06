@@ -4,7 +4,7 @@ import (
 	"sync"
 	"testing"
 
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/provider"
 )
 
 // --- Kind constants ---

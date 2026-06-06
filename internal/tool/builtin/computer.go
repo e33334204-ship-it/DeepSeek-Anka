@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"strings"
 
-	"reasonix/internal/capabilities"
-	"reasonix/internal/control"
-	"reasonix/internal/tool"
-	"reasonix/internal/vision"
+	"deepseek-anka/internal/capabilities"
+	"deepseek-anka/internal/control"
+	"deepseek-anka/internal/tool"
+	"deepseek-anka/internal/vision"
 )
 
 func init() { tool.RegisterBuiltin(computerTool{}) }

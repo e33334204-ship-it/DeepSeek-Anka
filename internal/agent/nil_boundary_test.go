@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"reasonix/internal/event"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/tool"
 )
 
 type typedNilAgentSink struct{}

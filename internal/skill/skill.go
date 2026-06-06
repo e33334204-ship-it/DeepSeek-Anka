@@ -18,8 +18,8 @@ import (
 	"sort"
 	"strings"
 
-	"reasonix/internal/config"
-	"reasonix/internal/frontmatter"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/frontmatter"
 )
 
 // Scope records where a skill was loaded from. Higher-priority scopes win on a

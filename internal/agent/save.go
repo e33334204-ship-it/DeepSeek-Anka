@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"reasonix/internal/fileutil"
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/fileutil"
+	"deepseek-anka/internal/provider"
 )
 
 // Save writes the session's messages to path in JSONL — one provider.Message

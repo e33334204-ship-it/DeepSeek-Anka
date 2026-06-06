@@ -8,12 +8,12 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/checkpoint"
-	"reasonix/internal/event"
-	"reasonix/internal/plugin"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/agent"
+	"deepseek-anka/internal/checkpoint"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/plugin"
+	"deepseek-anka/internal/provider"
+	"deepseek-anka/internal/tool"
 )
 
 type typedNilControllerSink struct{}

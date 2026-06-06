@@ -7,9 +7,9 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 
-	"reasonix/internal/config"
-	"reasonix/internal/mcpdiag"
-	"reasonix/internal/plugin"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/mcpdiag"
+	"deepseek-anka/internal/plugin"
 )
 
 const (

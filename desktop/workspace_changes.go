@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"reasonix/internal/proc"
+	"deepseek-anka/internal/proc"
 )
 
 type gitStatusEntry struct {

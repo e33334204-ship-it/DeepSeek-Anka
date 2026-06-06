@@ -1,5 +1,5 @@
 // Package config loads Reasonix's runtime configuration from TOML. Resolution order:
-// flag > project ./reasonix.toml > user ~/.config/reasonix/config.toml > built-in defaults.
+// flag > project ./reasonix.toml > user ~/.config/deepseek-anka/config.toml > built-in defaults.
 // Secrets come from the environment via api_key_env and are never stored in
 // config files.
 package config
@@ -16,8 +16,8 @@ import (
 
 	"github.com/BurntSushi/toml"
 
-	"reasonix/internal/netclient"
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/netclient"
+	"deepseek-anka/internal/provider"
 )
 
 var validSkillName = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$`)
@@ -293,7 +293,7 @@ func (c *Config) NetworkProxyMode() string {
 
 // SkillsConfig configures skill discovery. Paths adds extra "custom"-scope skill
 // roots — each a directory of SKILL.md / <name>.md playbooks — scanned between
-// the project roots (.reasonix/.agents/.claude under the workspace) and the
+// the project roots (.deepseek-anka/.agents/.claude under the workspace) and the
 // global roots (the same three under the home dir). ~ and relative paths and
 // ${VAR} expansion are supported. DisabledSkills hides named skills from the
 // agent prompt, slash invocation, and skill tools while keeping them manageable.
@@ -425,7 +425,7 @@ type AgentConfig struct {
 	SubagentModels   map[string]string `toml:"subagent_models"`
 	// OutputStyle selects a persona/tone block folded into the system prompt at
 	// startup (a built-in like "explanatory"/"learning"/"concise", or a custom
-	// .reasonix/output-styles/<name>.md). Empty = the unmodified prompt.
+	// .deepseek-anka/output-styles/<name>.md). Empty = the unmodified prompt.
 	OutputStyle string `toml:"output_style"`
 	// AutoPlan controls whether interactive turns that look multi-step start in
 	// plan mode automatically: "off" keeps plan mode manual, "on" enables the
@@ -665,7 +665,7 @@ func Default() *Config {
 
 // Load builds the configuration: defaults, then user config, then project
 // config, then MCP servers from Claude Code's .mcp.json, then (lowest priority)
-// the v0.x ~/.reasonix/config.json's mcpServers. A .env in the working directory
+// the v0.x ~/.deepseek-anka/config.json's mcpServers. A .env in the working directory
 // is loaded first so api_key_env can resolve.
 func Load() (*Config, error) {
 	return LoadForRoot(".")
@@ -722,7 +722,7 @@ func LoadForRoot(root string) (*Config, error) {
 	}
 	cfg.mergeMCPJSON(entries)
 
-	// Lowest priority: the v0.x ~/.reasonix/config.json's mcpServers, so upgrading
+	// Lowest priority: the v0.x ~/.deepseek-anka/config.json's mcpServers, so upgrading
 	// from the TypeScript line keeps MCP servers without rewriting them. Anything
 	// the v2 config or .mcp.json already declared wins on a name collision.
 	cfg.mergeMCPJSON(loadLegacyMCP(legacyConfigPath()))
@@ -849,12 +849,12 @@ func userConfigPath() string {
 	return filepath.Join(dir, "reasonix", "config.toml")
 }
 
-// UserConfigPath is the user-global config file (~/.config/reasonix/config.toml),
+// UserConfigPath is the user-global config file (~/.config/deepseek-anka/config.toml),
 // or "" when the user config dir can't be resolved.
 func UserConfigPath() string { return userConfigPath() }
 
 // UserCredentialsPath is the reasonix-owned global secrets file, beside
-// config.toml in the user config dir (e.g. ~/.config/reasonix/credentials). It
+// config.toml in the user config dir (e.g. ~/.config/deepseek-anka/credentials). It
 // holds KEY=value lines loaded into the environment by loadDotEnv. The setup
 // wizard writes API keys here, deliberately NOT named .env: keys never land in a
 // project's own .env (which can't be selectively gitignored), never get
@@ -892,7 +892,7 @@ func SessionDir() string {
 
 // CacheDir is the per-user cache root for derived/regenerable artefacts: MCP
 // handshake snapshots, plugin startup-latency telemetry. Lives beside the
-// existing dirs (UserConfigDir/reasonix/...) so the whole reasonix state tree
+// existing dirs (UserConfigDir/deepseek-anka/...) so the whole reasonix state tree
 // shares one root the user can wipe in a single rm. Empty when the OS dir is
 // unavailable — callers must tolerate that (caching is best-effort).
 func CacheDir() string {
@@ -920,7 +920,7 @@ func MemoryUserDir() string {
 // files. Shared so skills (internal/skill) and commands (CommandDirs) discover
 // the same set. Note: hooks are NOT scanned across these — a .claude/settings.json
 // uses a different hook schema that can't be parsed as ours, so hooks stay in
-// .reasonix/settings.json (see internal/hook).
+// .deepseek-anka/settings.json (see internal/hook).
 var ConventionDirs = []string{".reasonix", ".agents", ".agent", ".claude"}
 
 // conventionSubdirsAsc joins sub under each ConventionDir of base, in ascending
@@ -936,9 +936,9 @@ func conventionSubdirsAsc(base, sub string) []string {
 
 // CommandDirs returns the directories scanned for custom slash commands, lowest
 // priority first, so a later (more specific) directory overrides an earlier one
-// on a name clash. Order: home-dir convention dirs (~/.claude/commands … ~/.reasonix/commands),
-// the legacy XDG user dir (~/.config/reasonix/commands), then the project's
-// convention dirs (.claude/commands … .reasonix/commands). Scanning the .claude /
+// on a name clash. Order: home-dir convention dirs (~/.claude/commands … ~/.deepseek-anka/commands),
+// the legacy XDG user dir (~/.config/deepseek-anka/commands), then the project's
+// convention dirs (.claude/commands … .deepseek-anka/commands). Scanning the .claude /
 // .agents / .agent dirs lets commands authored for other agent tools (same .md +
 // frontmatter format) work here unchanged.
 func CommandDirs() []string {

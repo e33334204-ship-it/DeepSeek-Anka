@@ -13,10 +13,10 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
-	"reasonix/internal/provider/openai"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/provider"
+	"deepseek-anka/internal/provider/openai"
+	"deepseek-anka/internal/tool"
 )
 
 // echoTool is a trivial read-only tool used to drive a multi-step tool loop:

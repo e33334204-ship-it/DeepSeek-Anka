@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"reasonix/internal/i18n"
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/i18n"
+	"deepseek-anka/internal/provider"
 )
 
 // explainError maps a provider HTTP failure to an actionable, localized message

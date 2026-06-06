@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/memory"
+	"deepseek-anka/internal/memory"
 )
 
 func TestExtractHostChecksFromStructuredSection(t *testing.T) {

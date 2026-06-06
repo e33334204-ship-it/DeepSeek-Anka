@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"reasonix/internal/memory"
+	"deepseek-anka/internal/memory"
 )
 
 // VerifyCheck is a host-observable project check extracted from structured

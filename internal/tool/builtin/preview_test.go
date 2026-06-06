@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"reasonix/internal/diff"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/diff"
+	"deepseek-anka/internal/tool"
 )
 
 // TestWritersImplementPreviewer locks in that every file-writer exposes the

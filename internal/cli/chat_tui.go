@@ -22,18 +22,18 @@ import (
 	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/x/ansi"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/command"
-	"reasonix/internal/control"
-	"reasonix/internal/event"
-	"reasonix/internal/hook"
-	"reasonix/internal/i18n"
-	"reasonix/internal/memory"
-	"reasonix/internal/outputstyle"
-	"reasonix/internal/plugin"
-	"reasonix/internal/provider"
-	"reasonix/internal/skill"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/agent"
+	"deepseek-anka/internal/command"
+	"deepseek-anka/internal/control"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/hook"
+	"deepseek-anka/internal/i18n"
+	"deepseek-anka/internal/memory"
+	"deepseek-anka/internal/outputstyle"
+	"deepseek-anka/internal/plugin"
+	"deepseek-anka/internal/provider"
+	"deepseek-anka/internal/skill"
+	"deepseek-anka/internal/tool"
 )
 
 // chatTUI is a bubbletea Model that runs a chat session in the terminal's
@@ -223,7 +223,7 @@ type chatTUI struct {
 	// (/mcp) from it.
 	host *plugin.Host
 
-	// commands are custom slash commands loaded from .reasonix/commands; each renders
+	// commands are custom slash commands loaded from .deepseek-anka/commands; each renders
 	// its template with the typed args and sends the result as a turn.
 	commands []command.Command
 
@@ -3213,7 +3213,7 @@ func renderUserBubble(line string, width int, planMode bool) string {
 	return "  " + accent(prefix+line)
 }
 
-var cliImageRefRe = regexp.MustCompile(`(?:^|\s)@\.reasonix/attachments/clipboard-\d{8}-\d{6}\.\d+(?:-(?:\d{6}|[a-f0-9]{8}))?\.(?:png|jpg|jpeg|gif|webp)`)
+var cliImageRefRe = regexp.MustCompile(`(?:^|\s)@\.deepseek-anka/attachments/clipboard-\d{8}-\d{6}\.\d+(?:-(?:\d{6}|[a-f0-9]{8}))?\.(?:png|jpg|jpeg|gif|webp)`)
 
 func displayLineForImageRefs(line string) string {
 	idx := 0

@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/event"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/tool"
 )
 
 // buildExamplePlugin compiles cmd/reasonix-plugin-example into a temp binary and
@@ -24,7 +24,7 @@ func buildExamplePlugin(t *testing.T) string {
 	if runtime.GOOS == "windows" {
 		bin += ".exe"
 	}
-	out, err := exec.Command("go", "build", "-o", bin, "reasonix/cmd/reasonix-plugin-example").CombinedOutput()
+	out, err := exec.Command("go", "build", "-o", bin, "deepseek-anka/cmd/reasonix-plugin-example").CombinedOutput()
 	if err != nil {
 		t.Fatalf("build example plugin: %v\n%s", err, out)
 	}

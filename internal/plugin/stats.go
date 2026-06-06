@@ -18,7 +18,7 @@ import (
 	"sort"
 	"time"
 
-	"reasonix/internal/config"
+	"deepseek-anka/internal/config"
 )
 
 const (

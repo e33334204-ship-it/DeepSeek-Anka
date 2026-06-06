@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"sort"
 
-	"reasonix/internal/fileutil"
-	"reasonix/internal/mcpdiag"
+	"deepseek-anka/internal/fileutil"
+	"deepseek-anka/internal/mcpdiag"
 )
 
 // mcpJSONFile is the project-root file Claude Code calls .mcp.json. Reasonix reads
@@ -68,7 +68,7 @@ func specsToEntries(specs map[string]mcpServerSpec, skip map[string]bool) []Plug
 	return entries
 }
 
-// legacyConfigPath is the v0.x (TypeScript line) config file, ~/.reasonix/config.json.
+// legacyConfigPath is the v0.x (TypeScript line) config file, ~/.deepseek-anka/config.json.
 func legacyConfigPath() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -77,7 +77,7 @@ func legacyConfigPath() string {
 	return filepath.Join(home, ".reasonix", "config.json")
 }
 
-// loadLegacyMCP reads the v0.x ~/.reasonix/config.json and returns its enabled
+// loadLegacyMCP reads the v0.x ~/.deepseek-anka/config.json and returns its enabled
 // mcpServers as PluginEntry values (servers listed in its mcpDisabled are
 // skipped), so upgrading from v0.x keeps MCP servers working without rewriting
 // them as [[plugins]]. Absent or malformed → nil: a stale legacy file must never

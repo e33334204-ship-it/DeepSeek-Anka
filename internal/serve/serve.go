@@ -19,13 +19,13 @@ import (
 	"sync"
 	"time"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/boot"
-	"reasonix/internal/config"
-	"reasonix/internal/control"
-	"reasonix/internal/event"
-	"reasonix/internal/nilutil"
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/agent"
+	"deepseek-anka/internal/boot"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/control"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/nilutil"
+	"deepseek-anka/internal/provider"
 )
 
 //go:embed index.html

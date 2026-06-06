@@ -18,26 +18,26 @@ import (
 	"path/filepath"
 	"strings"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/codegraph"
-	"reasonix/internal/command"
-	"reasonix/internal/config"
-	"reasonix/internal/control"
-	"reasonix/internal/event"
-	"reasonix/internal/hook"
-	"reasonix/internal/instruction"
-	"reasonix/internal/jobs"
-	"reasonix/internal/lsp"
-	"reasonix/internal/memory"
-	"reasonix/internal/netclient"
-	"reasonix/internal/outputstyle"
-	"reasonix/internal/permission"
-	"reasonix/internal/plugin"
-	"reasonix/internal/provider"
-	"reasonix/internal/sandbox"
-	"reasonix/internal/skill"
-	"reasonix/internal/tool"
-	"reasonix/internal/tool/builtin"
+	"deepseek-anka/internal/agent"
+	"deepseek-anka/internal/codegraph"
+	"deepseek-anka/internal/command"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/control"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/hook"
+	"deepseek-anka/internal/instruction"
+	"deepseek-anka/internal/jobs"
+	"deepseek-anka/internal/lsp"
+	"deepseek-anka/internal/memory"
+	"deepseek-anka/internal/netclient"
+	"deepseek-anka/internal/outputstyle"
+	"deepseek-anka/internal/permission"
+	"deepseek-anka/internal/plugin"
+	"deepseek-anka/internal/provider"
+	"deepseek-anka/internal/sandbox"
+	"deepseek-anka/internal/skill"
+	"deepseek-anka/internal/tool"
+	"deepseek-anka/internal/tool/builtin"
 )
 
 // ErrUnknownModel is returned by Build when the configured model can't be
@@ -133,7 +133,7 @@ func Build(ctx context.Context, opts Options) (*control.Controller, error) {
 	// once and is a cheap no-op afterwards.
 	if home, herr := os.UserHomeDir(); herr == nil {
 		if n, serr := agent.MigrateLegacySessions(filepath.Join(home, ".reasonix", "sessions"), config.SessionDir()); serr == nil && n > 0 {
-			sink.Emit(event.Event{Kind: event.Notice, Level: event.LevelInfo, Text: fmt.Sprintf("imported %d past session(s) from ~/.reasonix/sessions — resume them with --resume or the history panel", n)})
+			sink.Emit(event.Event{Kind: event.Notice, Level: event.LevelInfo, Text: fmt.Sprintf("imported %d past session(s) from ~/.deepseek-anka/sessions — resume them with --resume or the history panel", n)})
 		}
 	}
 
@@ -479,7 +479,7 @@ func Build(ctx context.Context, opts Options) (*control.Controller, error) {
 		ArchiveDir:        config.ArchiveDir(),
 	}, sink)
 
-	// Custom slash commands (.reasonix/commands + user dir). Best-effort: a malformed
+	// Custom slash commands (.deepseek-anka/commands + user dir). Best-effort: a malformed
 	// file is skipped, and a load error never blocks the session.
 	cmds, _ := command.Load(config.CommandDirsForRoot(root)...)
 

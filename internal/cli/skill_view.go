@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"reasonix/internal/skill"
+	"deepseek-anka/internal/skill"
 )
 
 const skillShowMaxLines = 80

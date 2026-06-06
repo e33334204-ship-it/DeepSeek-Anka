@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"reasonix/internal/codegraph"
-	"reasonix/internal/config"
+	"deepseek-anka/internal/codegraph"
+	"deepseek-anka/internal/config"
 )
 
 // mcp.go holds the MCP server-management surface shared by the `reasonix mcp`

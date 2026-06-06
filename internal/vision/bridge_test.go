@@ -3,7 +3,7 @@ package vision
 import (
 	"testing"
 
-	"reasonix/internal/config"
+	"deepseek-anka/internal/config"
 )
 
 func TestRequiresAuxiliaryVisionDeepSeek(t *testing.T) {
@@ -31,7 +31,7 @@ func TestModelSupportsDirectImageGPT4o(t *testing.T) {
 }
 
 func TestUniqueImagePathsFromText(t *testing.T) {
-	text := "see @.reasonix/attachments/a.png and [attached_image: /tmp/b.jpg]"
+	text := "see @.deepseek-anka/attachments/a.png and [attached_image: /tmp/b.jpg]"
 	paths := UniqueImagePathsFromText(text)
 	if len(paths) != 2 {
 		t.Fatalf("got %d paths, want 2: %v", len(paths), paths)

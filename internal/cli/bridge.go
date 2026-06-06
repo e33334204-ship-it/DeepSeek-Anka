@@ -8,9 +8,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"reasonix/internal/bridge"
-	"reasonix/internal/config"
-	"reasonix/internal/serve"
+	"deepseek-anka/internal/bridge"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/serve"
 )
 
 func bridgeCommand(args []string) int {

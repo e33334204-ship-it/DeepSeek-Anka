@@ -1,4 +1,4 @@
-module reasonix
+module deepseek-anka
 
 go 1.25.0
 

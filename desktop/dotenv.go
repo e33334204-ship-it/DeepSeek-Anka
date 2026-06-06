@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"reasonix/internal/config"
-	"reasonix/internal/fileutil"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/fileutil"
 )
 
 // credentialsPath is the reasonix-owned global secrets file the settings panel

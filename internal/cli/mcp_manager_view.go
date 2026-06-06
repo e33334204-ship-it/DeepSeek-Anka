@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"reasonix/internal/mcpdiag"
+	"deepseek-anka/internal/mcpdiag"
 )
 
 func (m chatTUI) renderMCPManager() string {

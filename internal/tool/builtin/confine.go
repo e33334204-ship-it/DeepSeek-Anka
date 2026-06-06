@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"reasonix/internal/sandbox"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/sandbox"
+	"deepseek-anka/internal/tool"
 )
 
 // ConfineBash returns the bash built-in bound to an OS-sandbox spec, overriding

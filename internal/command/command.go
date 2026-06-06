@@ -14,7 +14,7 @@ import (
 	"strconv"
 	"strings"
 
-	"reasonix/internal/frontmatter"
+	"deepseek-anka/internal/frontmatter"
 )
 
 // Command is a custom slash command loaded from a .md file.

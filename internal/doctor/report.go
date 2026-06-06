@@ -9,11 +9,11 @@ import (
 	"runtime"
 	"strings"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/codegraph"
-	"reasonix/internal/config"
-	"reasonix/internal/netclient"
-	"reasonix/internal/sandbox"
+	"deepseek-anka/internal/agent"
+	"deepseek-anka/internal/codegraph"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/netclient"
+	"deepseek-anka/internal/sandbox"
 )
 
 type Options struct {

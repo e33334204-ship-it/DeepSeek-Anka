@@ -13,13 +13,13 @@ import (
 	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/x/ansi"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/checkpoint"
-	"reasonix/internal/config"
-	"reasonix/internal/control"
-	"reasonix/internal/event"
-	"reasonix/internal/i18n"
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/agent"
+	"deepseek-anka/internal/checkpoint"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/control"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/i18n"
+	"deepseek-anka/internal/provider"
 )
 
 type blockingTurnRunner struct{ started chan struct{} }

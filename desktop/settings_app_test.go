@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/provider"
 )
 
 func TestWithFreshSystemPromptReplacesExistingSystemMessage(t *testing.T) {

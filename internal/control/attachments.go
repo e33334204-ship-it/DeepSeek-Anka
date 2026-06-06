@@ -14,7 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"reasonix/internal/proc"
+	"deepseek-anka/internal/proc"
 )
 
 const maxImageAttachmentBytes = 10 * 1024 * 1024
@@ -27,7 +27,7 @@ var safeAttachmentExt = regexp.MustCompile(`^\.[a-z0-9]{1,12}$`)
 
 // SaveAttachmentDataURL stores a non-image file (dropped/pasted in the desktop
 // app, where the browser exposes bytes but not a real path) under
-// .reasonix/attachments and returns its repo-relative path for @referencing.
+// .deepseek-anka/attachments and returns its repo-relative path for @referencing.
 // origName supplies only the extension; the stored name is generated.
 func SaveAttachmentDataURL(origName, dataURL string) (string, error) {
 	const marker = ";base64,"
@@ -324,7 +324,7 @@ func cleanAttachmentPath(path string) (string, error) {
 	clean := filepath.Clean(filepath.FromSlash(path))
 	root := filepath.Join(".reasonix", "attachments")
 	if clean == "." || clean == root || strings.HasPrefix(clean, ".."+string(filepath.Separator)) || !strings.HasPrefix(clean, root+string(filepath.Separator)) {
-		return "", fmt.Errorf("attachment path is outside .reasonix/attachments")
+		return "", fmt.Errorf("attachment path is outside .deepseek-anka/attachments")
 	}
 	if err := ensureAttachmentRoot(); err != nil {
 		return "", err
@@ -341,7 +341,7 @@ func rejectSymlinkComponents(path, root string) error {
 		return err
 	}
 	if rel == "." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) || rel == ".." {
-		return fmt.Errorf("attachment path is outside .reasonix/attachments")
+		return fmt.Errorf("attachment path is outside .deepseek-anka/attachments")
 	}
 	cur := root
 	for _, part := range strings.Split(rel, string(filepath.Separator)) {

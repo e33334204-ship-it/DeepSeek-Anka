@@ -10,8 +10,8 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/provider"
 )
 
 // Compaction is a low-frequency cache-reset point: the prompt grows append-only

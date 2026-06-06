@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/tool"
 )
 
 func init() { tool.RegisterBuiltin(multiEdit{}) }

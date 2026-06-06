@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"reasonix/internal/proc"
+	"deepseek-anka/internal/proc"
 )
 
 // ─── Types ───────────────────────────────────────────────────────────────────

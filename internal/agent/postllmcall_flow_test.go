@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/provider"
+	"deepseek-anka/internal/tool"
 )
 
 func reasoningTurn() [][]provider.Chunk {

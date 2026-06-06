@@ -8,9 +8,9 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 
-	"reasonix/internal/config"
-	"reasonix/internal/control"
-	"reasonix/internal/plugin"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/control"
+	"deepseek-anka/internal/plugin"
 )
 
 func TestParseMCPAddStdio(t *testing.T) {
@@ -291,7 +291,7 @@ func TestRenderMCPManagerDetailCompactsConfigPath(t *testing.T) {
 		stage: mcpStageDetail,
 		name:  "github",
 		snapshot: mcpSnapshot{
-			configPath: "/Users/example/Library/Application Support/reasonix/config.toml",
+			configPath: "/Users/example/Library/Application Support/deepseek-anka/config.toml",
 			servers: []mcpServerView{{
 				Name: "github", Transport: "stdio", Status: "deferred", Configured: true,
 				Tier: "lazy", Command: "npx", Args: []string{"-y", "@modelcontextprotocol/server-github"},
@@ -304,7 +304,7 @@ func TestRenderMCPManagerDetailCompactsConfigPath(t *testing.T) {
 			t.Fatalf("detail line exceeds width 80 (%d): %q\n%s", visibleWidth(line), line, got)
 		}
 	}
-	if strings.Contains(got, "Application Support/reasonix/config.toml") {
+	if strings.Contains(got, "Application Support/deepseek-anka/config.toml") {
 		t.Fatalf("long config path should be compacted:\n%s", got)
 	}
 }

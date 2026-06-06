@@ -6,11 +6,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/boot"
-	"reasonix/internal/config"
-	"reasonix/internal/provider"
-	"reasonix/internal/vision"
+	"deepseek-anka/internal/agent"
+	"deepseek-anka/internal/boot"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/provider"
+	"deepseek-anka/internal/vision"
 )
 
 // settings_app.go is the desktop Settings panel's command surface: it reads the

@@ -7,10 +7,10 @@ import (
 	"runtime"
 	"strings"
 
-	"reasonix/internal/fileutil"
-	"reasonix/internal/mcpdiag"
-	"reasonix/internal/netclient"
-	"reasonix/internal/permission"
+	"deepseek-anka/internal/fileutil"
+	"deepseek-anka/internal/mcpdiag"
+	"deepseek-anka/internal/netclient"
+	"deepseek-anka/internal/permission"
 )
 
 // edit.go is the programmatic mutation surface a settings UI drives: change the

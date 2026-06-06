@@ -8,10 +8,10 @@ import (
 
 	"charm.land/lipgloss/v2"
 
-	"reasonix/internal/control"
-	"reasonix/internal/fileref"
-	"reasonix/internal/i18n"
-	"reasonix/internal/skill"
+	"deepseek-anka/internal/control"
+	"deepseek-anka/internal/fileref"
+	"deepseek-anka/internal/i18n"
+	"deepseek-anka/internal/skill"
 )
 
 // compKind distinguishes the two completion menus.

@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"testing"
 
-	"reasonix/internal/command"
-	"reasonix/internal/config"
-	"reasonix/internal/tool"
-	_ "reasonix/internal/tool/builtin" // self-register built-ins for LookupBuiltin
+	"deepseek-anka/internal/command"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/tool"
+	_ "deepseek-anka/internal/tool/builtin" // self-register built-ins for LookupBuiltin
 )
 
 // fakeTool is a minimal Tool for registry projection tests. It never implements

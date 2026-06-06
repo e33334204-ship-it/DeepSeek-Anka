@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/event"
+	"deepseek-anka/internal/event"
 )
 
 type recordingAsker struct {

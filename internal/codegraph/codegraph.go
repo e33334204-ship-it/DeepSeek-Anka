@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	"reasonix/internal/proc"
+	"deepseek-anka/internal/proc"
 )
 
 const initTimeout = 30 * time.Second

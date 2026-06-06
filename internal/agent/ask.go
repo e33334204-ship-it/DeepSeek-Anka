@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"reasonix/internal/event"
+	"deepseek-anka/internal/event"
 )
 
 // AskTool lets the model put a structured multiple-choice question (or a few) to

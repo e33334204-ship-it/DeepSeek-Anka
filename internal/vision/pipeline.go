@@ -15,7 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/provider"
 )
 
 // VisualResource is a keyed image resource for vision analysis.
@@ -107,7 +107,7 @@ func resourceFromFile(filePath string) (*VisualResource, error) {
 
 // collectMessageResources scans a user message for embedded image references
 // and returns the corresponding VisualResources. It handles both
-// [attached_image: path] markers and @.reasonix/attachments/ path refs.
+// [attached_image: path] markers and @.deepseek-anka/attachments/ path refs.
 func collectMessageResources(msg provider.Message) []VisualResource {
 	if msg.Role != provider.RoleUser || msg.Content == "" {
 		return nil

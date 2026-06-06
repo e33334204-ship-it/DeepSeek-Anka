@@ -3,7 +3,7 @@ package control
 import (
 	"testing"
 
-	"reasonix/internal/skill"
+	"deepseek-anka/internal/skill"
 )
 
 func labelsOf(items []SlashItem) []string {

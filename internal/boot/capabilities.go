@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"io"
 
-	"reasonix/internal/browser"
-	"reasonix/internal/capabilities"
-	"reasonix/internal/computer"
-	"reasonix/internal/config"
-	"reasonix/internal/tool"
-	"reasonix/internal/vision"
+	"deepseek-anka/internal/browser"
+	"deepseek-anka/internal/capabilities"
+	"deepseek-anka/internal/computer"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/tool"
+	"deepseek-anka/internal/vision"
 )
 
 // wireCapabilities initializes openhanako-ported services and filters the tool

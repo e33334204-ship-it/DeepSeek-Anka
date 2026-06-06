@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"reasonix/internal/doctor"
+	"deepseek-anka/internal/doctor"
 )
 
 func doctorCommand(args []string, version string) int {

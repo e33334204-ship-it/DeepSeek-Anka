@@ -6,8 +6,8 @@ import (
 
 	"github.com/charmbracelet/x/ansi"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/control"
+	"deepseek-anka/internal/agent"
+	"deepseek-anka/internal/control"
 )
 
 func (m *chatTUI) showBranchTree() {

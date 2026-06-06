@@ -4,12 +4,12 @@ import (
 	"context"
 	"os"
 	"path/filepath"
-	"reasonix/internal/event"
+	"deepseek-anka/internal/event"
 	"strings"
 	"testing"
 
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/provider"
+	"deepseek-anka/internal/tool"
 )
 
 // fakeProvider returns a fixed reply and records the messages it was asked to

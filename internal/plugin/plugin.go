@@ -19,8 +19,8 @@ import (
 	"sync"
 	"time"
 
-	"reasonix/internal/event"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/tool"
 )
 
 // protocolVersion is the MCP revision Reasonix advertises during initialize.

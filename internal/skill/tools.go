@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/tool"
 )
 
 // SubagentRunner runs a runAs=subagent skill: it spawns an isolated child loop
@@ -187,9 +187,9 @@ func (*installSkillTool) Name() string   { return "install_skill" }
 func (*installSkillTool) ReadOnly() bool { return false }
 
 func (t *installSkillTool) Description() string {
-	scope := "'global' (only option — no project workspace) writes to ~/.reasonix/skills/."
+	scope := "'global' (only option — no project workspace) writes to ~/.deepseek-anka/skills/."
 	if t.store.HasProjectScope() {
-		scope = "'project' (default) writes to <repo>/.reasonix/skills/ (this workspace only); 'global' writes to ~/.reasonix/skills/ (every project)."
+		scope = "'project' (default) writes to <repo>/.deepseek-anka/skills/ (this workspace only); 'global' writes to ~/.deepseek-anka/skills/ (every project)."
 	}
 	return "Author and save a new skill — a reusable playbook future turns invoke via run_skill (or /<name>). Runnable immediately this turn; appears in the pinned Skills index on the next launch. " + scope
 }

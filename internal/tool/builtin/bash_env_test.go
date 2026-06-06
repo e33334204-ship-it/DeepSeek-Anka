@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/sandbox"
+	"deepseek-anka/internal/sandbox"
 )
 
 func TestBashMergesLoginShellPath(t *testing.T) {

@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/command"
-	"reasonix/internal/event"
-	"reasonix/internal/memory"
+	"deepseek-anka/internal/command"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/memory"
 )
 
 type fakeAutoPlanClassifier struct {

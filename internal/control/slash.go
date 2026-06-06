@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"reasonix/internal/config"
-	"reasonix/internal/i18n"
-	"reasonix/internal/skill"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/i18n"
+	"deepseek-anka/internal/skill"
 )
 
 // SlashItem is one slash-completion suggestion. Insert is the token text placed

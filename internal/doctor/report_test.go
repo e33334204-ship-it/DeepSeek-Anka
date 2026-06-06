@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/config"
+	"deepseek-anka/internal/config"
 )
 
 func TestRedactHome(t *testing.T) {

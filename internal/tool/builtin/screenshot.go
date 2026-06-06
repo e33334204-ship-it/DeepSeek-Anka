@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"reasonix/internal/capabilities"
-	"reasonix/internal/tool"
-	"reasonix/internal/vision"
+	"deepseek-anka/internal/capabilities"
+	"deepseek-anka/internal/tool"
+	"deepseek-anka/internal/vision"
 )
 
 func init() { tool.RegisterBuiltin(screenshot{}) }
@@ -17,7 +17,7 @@ type screenshot struct{}
 func (screenshot) Name() string { return "screenshot" }
 
 func (screenshot) Description() string {
-	return "Capture a screenshot of the primary display and save it under .reasonix/attachments. When vision auxiliary is enabled, a textual description is included."
+	return "Capture a screenshot of the primary display and save it under .deepseek-anka/attachments. When vision auxiliary is enabled, a textual description is included."
 }
 
 func (screenshot) Schema() json.RawMessage {

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"reasonix/internal/command"
-	"reasonix/internal/i18n"
-	"reasonix/internal/plugin"
-	"reasonix/internal/skill"
+	"deepseek-anka/internal/command"
+	"deepseek-anka/internal/i18n"
+	"deepseek-anka/internal/plugin"
+	"deepseek-anka/internal/skill"
 )
 
 const helpMaxDynamicItems = 8

@@ -1,4 +1,4 @@
-module reasonix/desktop
+module deepseek-anka/desktop
 
 go 1.25.0
 
@@ -9,7 +9,7 @@ toolchain go1.26.4
 // the same reasonix/internal/* kernel (the import path stays under reasonix/, so
 // the internal rule still permits it). `go mod tidy` here resolves Wails + its
 // transitive deps; the parent module's go build/test ./... skips this directory.
-require reasonix v0.0.0
+require deepseek-anka v0.0.0
 
 require (
 	aead.dev/minisign v0.3.0
@@ -59,4 +59,4 @@ require (
 	golang.org/x/net v0.55.0 // indirect
 )
 
-replace reasonix => D:\DeepSeek-Reasonix
+replace deepseek-anka => D:\DeepSeek-Reasonix

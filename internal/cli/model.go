@@ -6,8 +6,8 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 
-	"reasonix/internal/config"
-	"reasonix/internal/i18n"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/i18n"
 )
 
 // runModelSubcommand handles "/model": with no argument it lists the configured

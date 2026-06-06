@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"reasonix/internal/netclient"
+	"deepseek-anka/internal/netclient"
 )
 
 type visionClient struct {

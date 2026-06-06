@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"reasonix/internal/i18n"
-	"reasonix/internal/skill"
+	"deepseek-anka/internal/i18n"
+	"deepseek-anka/internal/skill"
 )
 
 const (

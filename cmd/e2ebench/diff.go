@@ -399,11 +399,11 @@ func parseCoverProfile(repo, path string) map[string][]coverBlock {
 	return out
 }
 
-// repoRelFromModulePath turns "reasonix/internal/agent/foo.go" into
+// repoRelFromModulePath turns "deepseek-anka/internal/agent/foo.go" into
 // "internal/agent/foo.go" by dropping the first path element (the module root).
 func repoRelFromModulePath(p string) string {
 	// Strip the full module prefix; a generic first-segment cut mis-strips a multi-segment module path.
-	prefix := "reasonix/"
+	prefix := "deepseek-anka/"
 	if strings.HasPrefix(p, prefix) {
 		return p[len(prefix):]
 	}

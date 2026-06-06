@@ -14,9 +14,9 @@ import (
 	"sync"
 	"time"
 
-	"reasonix/internal/jobs"
-	"reasonix/internal/sandbox"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/jobs"
+	"deepseek-anka/internal/sandbox"
+	"deepseek-anka/internal/tool"
 )
 
 const (

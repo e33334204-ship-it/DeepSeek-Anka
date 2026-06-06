@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/control"
-	"reasonix/internal/event"
+	"deepseek-anka/internal/control"
+	"deepseek-anka/internal/event"
 )
 
 // --- fakes: a Factory wrapping a behavior-driven runner in a real Controller ---

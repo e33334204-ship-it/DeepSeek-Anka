@@ -32,9 +32,9 @@ func find(skills []Skill, name string) (Skill, bool) {
 func TestListPrecedenceProjectOverGlobal(t *testing.T) {
 	home := t.TempDir()
 	proj := t.TempDir()
-	writeSkill(t, proj, ".reasonix/skills/greet.md", "---\nname: greet\ndescription: project greet\n---\nproject body")
-	writeSkill(t, home, ".reasonix/skills/greet.md", "---\ndescription: global greet\n---\nglobal body")
-	writeSkill(t, home, ".reasonix/skills/onlyglobal.md", "---\ndescription: only global\n---\nbody")
+	writeSkill(t, proj, ".deepseek-anka/skills/greet.md", "---\nname: greet\ndescription: project greet\n---\nproject body")
+	writeSkill(t, home, ".deepseek-anka/skills/greet.md", "---\ndescription: global greet\n---\nglobal body")
+	writeSkill(t, home, ".deepseek-anka/skills/onlyglobal.md", "---\ndescription: only global\n---\nbody")
 
 	st := New(Options{HomeDir: home, ProjectRoot: proj, DisableBuiltins: true})
 	list := st.List()
@@ -53,8 +53,8 @@ func TestListPrecedenceProjectOverGlobal(t *testing.T) {
 
 func TestFlatAndDirLayout(t *testing.T) {
 	home := t.TempDir()
-	writeSkill(t, home, ".reasonix/skills/flat.md", "---\ndescription: flat\n---\nflat body")
-	writeSkill(t, home, ".reasonix/skills/dir/SKILL.md", "---\ndescription: dir\n---\ndir body")
+	writeSkill(t, home, ".deepseek-anka/skills/flat.md", "---\ndescription: flat\n---\nflat body")
+	writeSkill(t, home, ".deepseek-anka/skills/dir/SKILL.md", "---\ndescription: dir\n---\ndir body")
 
 	st := New(Options{HomeDir: home, DisableBuiltins: true})
 	list := st.List()
@@ -82,10 +82,10 @@ func TestConventionDirsDiscovered(t *testing.T) {
 
 func TestFrontmatterFields(t *testing.T) {
 	home := t.TempDir()
-	writeSkill(t, home, ".reasonix/skills/sub.md",
+	writeSkill(t, home, ".deepseek-anka/skills/sub.md",
 		"---\ndescription: a sub\nrunAs: subagent\nallowed-tools: read_file, grep\nmodel: deepseek-pro\n---\nbody")
-	writeSkill(t, home, ".reasonix/skills/fork.md", "---\ndescription: f\ncontext: fork\n---\nbody")
-	writeSkill(t, home, ".reasonix/skills/plain.md", "---\ndescription: p\n---\nbody")
+	writeSkill(t, home, ".deepseek-anka/skills/fork.md", "---\ndescription: f\ncontext: fork\n---\nbody")
+	writeSkill(t, home, ".deepseek-anka/skills/plain.md", "---\ndescription: p\n---\nbody")
 
 	st := New(Options{HomeDir: home, DisableBuiltins: true})
 	sub, _ := st.Read("sub")
@@ -108,9 +108,9 @@ func TestFrontmatterFields(t *testing.T) {
 
 func TestReferencesInlined(t *testing.T) {
 	home := t.TempDir()
-	writeSkill(t, home, ".reasonix/skills/withrefs/SKILL.md", "---\ndescription: r\n---\nmain body")
-	writeSkill(t, home, ".reasonix/skills/withrefs/references/b.md", "second ref")
-	writeSkill(t, home, ".reasonix/skills/withrefs/references/a.md", "first ref")
+	writeSkill(t, home, ".deepseek-anka/skills/withrefs/SKILL.md", "---\ndescription: r\n---\nmain body")
+	writeSkill(t, home, ".deepseek-anka/skills/withrefs/references/b.md", "second ref")
+	writeSkill(t, home, ".deepseek-anka/skills/withrefs/references/a.md", "first ref")
 
 	st := New(Options{HomeDir: home, DisableBuiltins: true})
 	sk, ok := st.Read("withrefs")
@@ -181,7 +181,7 @@ func TestBuiltinsPresentAndOverridable(t *testing.T) {
 	}
 	// A user file named after a built-in overrides it.
 	home := t.TempDir()
-	writeSkill(t, home, ".reasonix/skills/explore.md", "---\ndescription: mine\nrunAs: inline\n---\nbody")
+	writeSkill(t, home, ".deepseek-anka/skills/explore.md", "---\ndescription: mine\nrunAs: inline\n---\nbody")
 	st2 := New(Options{HomeDir: home})
 	ex, _ := st2.Read("explore")
 	if ex.Scope == ScopeBuiltin || ex.Description != "mine" {
@@ -191,8 +191,8 @@ func TestBuiltinsPresentAndOverridable(t *testing.T) {
 
 func TestDisabledSkillsAreFilteredFromListAndRead(t *testing.T) {
 	home := t.TempDir()
-	writeSkill(t, home, ".reasonix/skills/active.md", "---\ndescription: active\n---\nbody")
-	writeSkill(t, home, ".reasonix/skills/hidden.md", "---\ndescription: hidden\n---\nbody")
+	writeSkill(t, home, ".deepseek-anka/skills/active.md", "---\ndescription: active\n---\nbody")
+	writeSkill(t, home, ".deepseek-anka/skills/hidden.md", "---\ndescription: hidden\n---\nbody")
 
 	st := New(Options{HomeDir: home, DisabledNames: []string{"hidden", "review"}})
 	if _, ok := find(st.List(), "active"); !ok {
@@ -235,7 +235,7 @@ func containsString(ss []string, want string) bool {
 
 func TestInvalidNamesSkipped(t *testing.T) {
 	home := t.TempDir()
-	writeSkill(t, home, ".reasonix/skills/bad name.md", "---\ndescription: x\n---\nb") // space → invalid
+	writeSkill(t, home, ".deepseek-anka/skills/bad name.md", "---\ndescription: x\n---\nb") // space → invalid
 	st := New(Options{HomeDir: home, DisableBuiltins: true})
 	if len(st.List()) != 0 {
 		t.Errorf("invalid-named skill should be skipped, got %d", len(st.List()))

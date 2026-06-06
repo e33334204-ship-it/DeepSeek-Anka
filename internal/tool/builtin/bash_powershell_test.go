@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/sandbox"
+	"deepseek-anka/internal/sandbox"
 )
 
 func powershellPath(t *testing.T) string {

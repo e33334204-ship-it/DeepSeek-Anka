@@ -9,12 +9,12 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/charmbracelet/x/ansi"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/agent/testutil"
-	"reasonix/internal/control"
-	"reasonix/internal/event"
-	"reasonix/internal/i18n"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/agent"
+	"deepseek-anka/internal/agent/testutil"
+	"deepseek-anka/internal/control"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/i18n"
+	"deepseek-anka/internal/tool"
 )
 
 // TestRunStatuslineCmd checks the custom status-line runner: it returns the

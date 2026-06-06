@@ -12,7 +12,7 @@ import (
 	"sort"
 	"strings"
 
-	"reasonix/internal/frontmatter"
+	"deepseek-anka/internal/frontmatter"
 )
 
 // OutputStyle is one selectable persona. Body is appended to the system prompt

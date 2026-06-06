@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"reasonix/internal/proc"
+	"deepseek-anka/internal/proc"
 )
 
 // docState tracks what we last sent the server for a document, so ensureSynced

@@ -23,8 +23,8 @@ func TestCommandDirsIncludeConventions(t *testing.T) {
 			t.Errorf("CommandDirs missing %q\ngot:\n%s", want, joined)
 		}
 	}
-	// The project's .reasonix/commands must be the highest-priority (last) entry.
+	// The project's .deepseek-anka/commands must be the highest-priority (last) entry.
 	if last := dirs[len(dirs)-1]; last != filepath.Join(".reasonix", "commands") {
-		t.Errorf("project .reasonix/commands should be highest priority (last), got %q", last)
+		t.Errorf("project .deepseek-anka/commands should be highest priority (last), got %q", last)
 	}
 }

@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/tool"
 )
 
 // helperSpec returns a Spec that re-invokes this test binary as a minimal MCP

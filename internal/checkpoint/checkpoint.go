@@ -21,8 +21,8 @@ import (
 	"sync"
 	"time"
 
-	"reasonix/internal/diff"
-	fileenc "reasonix/internal/fileutil/encoding"
+	"deepseek-anka/internal/diff"
+	fileenc "deepseek-anka/internal/fileutil/encoding"
 )
 
 // FileSnap is one file's state at the moment it was first touched in a turn.

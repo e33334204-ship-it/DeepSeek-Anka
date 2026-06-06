@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"reasonix/internal/plugin"
+	"deepseek-anka/internal/plugin"
 )
 
 const mcpMaxItemsPerSection = 6

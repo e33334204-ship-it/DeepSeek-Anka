@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"reasonix/internal/capabilities"
-	"reasonix/internal/control"
+	"deepseek-anka/internal/capabilities"
+	"deepseek-anka/internal/control"
 )
 
 // SaveDesktopScreenshot captures the primary display and stores it as an attachment.

@@ -1,36 +1,36 @@
 Unicode true
 
 ####
-## Reasonix per-user NSIS installer.
+## Please note: Template replacements don't work in this file. They are provided with default defines like
+## mentioned underneath.
+## If the keyword is not defined, "wails_tools.nsh" will populate them with the values from ProjectInfo.
+## If they are defined here, "wails_tools.nsh" will not touch them. This allows to use this project.nsi manually
+## from outside of Wails for debugging and development of the installer.
 ##
-## This file is COMMITTED and customized (Wails leaves an existing project.nsi
-## untouched and only regenerates wails_tools.nsh). The customizations vs.
-## Wails' default template:
-##
-##   1. REQUEST_EXECUTION_LEVEL "user" + InstallDir under $LOCALAPPDATA - install
-##      without administrator rights. This is what lets the auto-updater re-run a
-##      freshly downloaded installer silently (`/S`) with no UAC prompt.
-##   2. Uninstall registry under HKCU (not HKLM). Wails' wails.writeUninstaller /
-##      wails.deleteUninstaller macros hard-code HKLM, which a non-admin install
-##      cannot write - so we inline HKCU versions below instead.
-##   3. InstallDir is remembered across updates via InstallDirRegKey +
-##      InstallLocation (HKCU\...\Uninstall\InstallLocation). Without this, every
-##      release forces the user back to %LOCALAPPDATA%\Programs\Reasonix even if
-##      they had moved the install to a different drive (e.g. D:\Tools\Reasonix);
-##      the silent auto-updater would re-run with /S into the wrong dir, leaving
-##      the old install orphaned.
-##
-## Everything else mirrors Wails' generated default. Defines below override the
-## ProjectInfo values that wails_tools.nsh would otherwise populate.
+## For development first make a wails nsis build to populate the "wails_tools.nsh":
+## > wails build --target windows/amd64 --nsis
+## Then you can call makensis on this file with specifying the path to your binary:
+## For a AMD64 only installer:
+## > makensis -DARG_WAILS_AMD64_BINARY=..\..\bin\app.exe
+## For a ARM64 only installer:
+## > makensis -DARG_WAILS_ARM64_BINARY=..\..\bin\app.exe
+## For a installer with both architectures:
+## > makensis -DARG_WAILS_AMD64_BINARY=..\..\bin\app-amd64.exe -DARG_WAILS_ARM64_BINARY=..\..\bin\app-arm64.exe
 ####
-
-## Install per-user (no admin). Must be defined BEFORE including wails_tools.nsh,
-## which only sets the "admin" default when REQUEST_EXECUTION_LEVEL is undefined.
-!define REQUEST_EXECUTION_LEVEL "user"
-
+## The following information is taken from the ProjectInfo file, but they can be overwritten here.
 ####
-## Include the wails tools (auto-generated; provides INFO_* defines and the
-## wails.* macros used below).
+## !define INFO_PROJECTNAME    "MyProject" # Default "{{.Name}}"
+## !define INFO_COMPANYNAME    "MyCompany" # Default "{{.Info.CompanyName}}"
+## !define INFO_PRODUCTNAME    "MyProduct" # Default "{{.Info.ProductName}}"
+## !define INFO_PRODUCTVERSION "1.0.0"     # Default "{{.Info.ProductVersion}}"
+## !define INFO_COPYRIGHT      "Copyright" # Default "{{.Info.Copyright}}"
+###
+## !define PRODUCT_EXECUTABLE  "Application.exe"      # Default "${INFO_PROJECTNAME}.exe"
+## !define UNINST_KEY_NAME     "UninstKeyInRegistry"  # Default "${INFO_COMPANYNAME}${INFO_PRODUCTNAME}"
+####
+## !define REQUEST_EXECUTION_LEVEL "admin"            # Default "admin"  see also https://nsis.sourceforge.io/Docs/Chapter4.html
+####
+## Include the wails tools
 ####
 !include "wails_tools.nsh"
 
@@ -72,51 +72,11 @@ ManifestDPIAware true
 
 Name "${INFO_PRODUCTNAME}"
 OutFile "..\..\bin\${INFO_PROJECTNAME}-${ARCH}-installer.exe" # Name of the installer's file.
-!define REASONIX_DEFAULT_INSTALLDIR "$LOCALAPPDATA\Programs\${INFO_PRODUCTNAME}"
-InstallDirRegKey HKCU "${UNINST_KEY}" "InstallLocation" # Reuse the previous install path on update; .onInit falls back to the default on first install.
-InstallDir "${REASONIX_DEFAULT_INSTALLDIR}" # Per-user install location (no admin rights required).
+InstallDir "$PROGRAMFILES64\${INFO_COMPANYNAME}\${INFO_PRODUCTNAME}" # Default installing folder ($PROGRAMFILES is Program Files folder).
 ShowInstDetails show # This will always show the installation details.
-
-####
-## Per-user uninstaller registry (HKCU). Replaces wails.writeUninstaller /
-## wails.deleteUninstaller, which write HKLM and would fail without admin rights.
-####
-!macro reasonix.writeUninstaller
-    WriteUninstaller "$INSTDIR\uninstall.exe"
-
-    WriteRegStr HKCU "${UNINST_KEY}" "Publisher" "${INFO_COMPANYNAME}"
-    WriteRegStr HKCU "${UNINST_KEY}" "DisplayName" "${INFO_PRODUCTNAME}"
-    WriteRegStr HKCU "${UNINST_KEY}" "DisplayVersion" "${INFO_PRODUCTVERSION}"
-    WriteRegStr HKCU "${UNINST_KEY}" "DisplayIcon" "$INSTDIR\${PRODUCT_EXECUTABLE}"
-    WriteRegStr HKCU "${UNINST_KEY}" "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
-    WriteRegStr HKCU "${UNINST_KEY}" "QuietUninstallString" "$\"$INSTDIR\uninstall.exe$\" /S"
-    # Persist the resolved install path so a subsequent update picks it up
-    # via InstallDirRegKey above. Without this, every release would force the
-    # user back to %LOCALAPPDATA%\Programs\Reasonix even if they had moved
-    # the install to a different drive (e.g. D:\Tools\Reasonix). The auto-
-    # updater re-runs this installer with /S and trusts the persisted path,
-    # so it has to be present before the silent re-install.
-    WriteRegStr HKCU "${UNINST_KEY}" "InstallLocation" "$INSTDIR"
-
-    ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
-    IntFmt $0 "0x%08X" $0
-    WriteRegDWORD HKCU "${UNINST_KEY}" "EstimatedSize" "$0"
-!macroend
-
-!macro reasonix.deleteUninstaller
-    Delete "$INSTDIR\uninstall.exe"
-    DeleteRegKey HKCU "${UNINST_KEY}"
-!macroend
 
 Function .onInit
    !insertmacro wails.checkArchitecture
-
-   ; InstallDirRegKey leaves $INSTDIR empty when the InstallLocation value
-   ; is missing (first install, or the user wiped the uninstaller registry).
-   ; Fall back to the per-user default so the directory page lands on a
-   ; usable path instead of crashing the install with "InstallDir empty".
-   StrCmp $INSTDIR "" 0 +2
-   StrCpy $INSTDIR "${REASONIX_DEFAULT_INSTALLDIR}"
 FunctionEnd
 
 Section
@@ -134,7 +94,7 @@ Section
     !insertmacro wails.associateFiles
     !insertmacro wails.associateCustomProtocols
 
-    !insertmacro reasonix.writeUninstaller
+    !insertmacro wails.writeUninstaller
 SectionEnd
 
 Section "uninstall"
@@ -150,5 +110,5 @@ Section "uninstall"
     !insertmacro wails.unassociateFiles
     !insertmacro wails.unassociateCustomProtocols
 
-    !insertmacro reasonix.deleteUninstaller
+    !insertmacro wails.deleteUninstaller
 SectionEnd

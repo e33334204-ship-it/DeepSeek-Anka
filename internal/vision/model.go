@@ -1,6 +1,6 @@
 package vision
 
-import "reasonix/internal/config"
+import "deepseek-anka/internal/config"
 
 // ModelRef mirrors openhanako's shared model reference {id, provider}.
 type ModelRef struct {

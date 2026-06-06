@@ -16,8 +16,8 @@ import (
 	"sync"
 	"time"
 
-	"reasonix/internal/netclient"
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/netclient"
+	"deepseek-anka/internal/provider"
 )
 
 func init() {

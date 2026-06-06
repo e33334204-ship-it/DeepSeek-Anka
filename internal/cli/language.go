@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"reasonix/internal/config"
-	"reasonix/internal/i18n"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/i18n"
 )
 
 func (m *chatTUI) runLanguageSubcommand(input string) {

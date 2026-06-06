@@ -2,12 +2,12 @@ package agent
 
 import (
 	"context"
-	"reasonix/internal/event"
+	"deepseek-anka/internal/event"
 	"strings"
 	"testing"
 
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/provider"
+	"deepseek-anka/internal/tool"
 )
 
 // mockProvider replays preset chunks and records the last request it received.

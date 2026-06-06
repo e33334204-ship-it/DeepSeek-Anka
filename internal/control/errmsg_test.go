@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/i18n"
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/i18n"
+	"deepseek-anka/internal/provider"
 )
 
 func TestExplainError(t *testing.T) {

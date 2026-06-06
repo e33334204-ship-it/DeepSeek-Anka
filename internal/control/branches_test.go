@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/agent"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/provider"
 )
 
 func TestBranchAndSwitch(t *testing.T) {

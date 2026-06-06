@@ -5,12 +5,12 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/command"
-	"reasonix/internal/hook"
-	"reasonix/internal/memory"
-	"reasonix/internal/outputstyle"
-	"reasonix/internal/plugin"
-	"reasonix/internal/skill"
+	"deepseek-anka/internal/command"
+	"deepseek-anka/internal/hook"
+	"deepseek-anka/internal/memory"
+	"deepseek-anka/internal/outputstyle"
+	"deepseek-anka/internal/plugin"
+	"deepseek-anka/internal/skill"
 )
 
 func TestRenderSkillListUsesSharedVisualLanguage(t *testing.T) {
@@ -136,7 +136,7 @@ func TestRenderHelpGroupsCommands(t *testing.T) {
 func TestRenderSkillPathsStaysWithinWidth(t *testing.T) {
 	width := 72
 	got := renderSkillPaths(width, []skill.Root{{
-		Dir:      "/Users/me/projects/really/deep/path/to/.reasonix/skills",
+		Dir:      "/Users/me/projects/really/deep/path/to/.deepseek-anka/skills",
 		Scope:    skill.ScopeProject,
 		Priority: 0,
 		Status:   skill.StatusMissing,

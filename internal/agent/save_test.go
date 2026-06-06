@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/provider"
 )
 
 // touch sets a file's mtime to t. Used by the listing-order test so it

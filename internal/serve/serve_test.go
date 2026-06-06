@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/control"
+	"deepseek-anka/internal/control"
 )
 
 // fakeRunner stands in for an agent.Runner: it records the composed input and

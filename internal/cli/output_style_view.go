@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"reasonix/internal/outputstyle"
+	"deepseek-anka/internal/outputstyle"
 )
 
 func renderOutputStyles(width int, styles []outputstyle.OutputStyle, active string) string {

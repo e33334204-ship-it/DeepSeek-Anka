@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/config"
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/provider"
 )
 
 func TestChdirTo(t *testing.T) {

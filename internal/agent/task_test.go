@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/provider"
+	"deepseek-anka/internal/tool"
 )
 
 // TestTaskToolReturnsSubAgentFinalAnswer runs a task against a mock provider

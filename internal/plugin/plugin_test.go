@@ -12,8 +12,8 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/event"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/tool"
 )
 
 // TestStdioEndToEnd drives a real subprocess (this test binary re-invoked in

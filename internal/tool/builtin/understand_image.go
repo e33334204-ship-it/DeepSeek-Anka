@@ -8,10 +8,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"reasonix/internal/capabilities"
-	"reasonix/internal/control"
-	"reasonix/internal/tool"
-	"reasonix/internal/vision"
+	"deepseek-anka/internal/capabilities"
+	"deepseek-anka/internal/control"
+	"deepseek-anka/internal/tool"
+	"deepseek-anka/internal/vision"
 )
 
 func init() { tool.RegisterBuiltin(understandImage{}) }
@@ -28,7 +28,7 @@ func (understandImage) Schema() json.RawMessage {
 	return json.RawMessage(`{
 "type":"object",
 "properties":{
-  "path":{"type":"string","description":"Path to a local image file (e.g. .reasonix/attachments/... or an absolute path)"},
+  "path":{"type":"string","description":"Path to a local image file (e.g. .deepseek-anka/attachments/... or an absolute path)"},
   "context":{"type":"string","description":"Optional user question or task context for the analysis"}
 },
 "required":["path"]
@@ -49,7 +49,7 @@ func (understandImage) Execute(ctx context.Context, args json.RawMessage) (strin
 		return "", fmt.Errorf("path is required")
 	}
 	path := p.Path
-	if strings.HasPrefix(filepath.ToSlash(path), ".reasonix/attachments/") {
+	if strings.HasPrefix(filepath.ToSlash(path), ".deepseek-anka/attachments/") {
 		clean, err := control.CleanAttachmentPath(path)
 		if err != nil {
 			return "", err

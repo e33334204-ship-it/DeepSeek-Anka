@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"reasonix/internal/i18n"
-	"reasonix/internal/memory"
+	"deepseek-anka/internal/i18n"
+	"deepseek-anka/internal/memory"
 )
 
 func renderMemory(width int, set *memory.Set) string {

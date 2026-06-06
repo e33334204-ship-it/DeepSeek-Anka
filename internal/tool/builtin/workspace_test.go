@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/tool"
 )
 
 func TestResolveIn(t *testing.T) {

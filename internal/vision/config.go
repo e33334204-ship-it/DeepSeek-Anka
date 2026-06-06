@@ -1,6 +1,6 @@
 package vision
 
-import "reasonix/internal/config"
+import "deepseek-anka/internal/config"
 
 // ResolveVisionConfig returns auxiliary vision model credentials (openhanako resolveVisionConfig).
 func ResolveVisionConfig(cfg *config.Config) (*ResolvedConfig, error) {

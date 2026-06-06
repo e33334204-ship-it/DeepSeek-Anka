@@ -11,8 +11,8 @@ import (
 	"charm.land/bubbles/v2/textarea"
 	"charm.land/lipgloss/v2"
 
-	"reasonix/internal/config"
-	"reasonix/internal/i18n"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/i18n"
 )
 
 type cliColor struct {

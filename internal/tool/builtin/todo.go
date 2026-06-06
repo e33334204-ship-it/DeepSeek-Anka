@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"reasonix/internal/evidence"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/evidence"
+	"deepseek-anka/internal/tool"
 )
 
 func init() { tool.RegisterBuiltin(todoWrite{}) }

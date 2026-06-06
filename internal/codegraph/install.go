@@ -29,7 +29,7 @@ const (
 )
 
 // CacheDir is where the CodeGraph bundle is unpacked on first use:
-// <user cache>/reasonix/codegraph/<Version>. Versioned so a bump installs cleanly
+// <user cache>/deepseek-anka/codegraph/<Version>. Versioned so a bump installs cleanly
 // beside the old one. REASONIX_CACHE_DIR overrides the base (relocate the cache,
 // or isolate it in tests). Empty when no cache/config dir resolves.
 func CacheDir() string {

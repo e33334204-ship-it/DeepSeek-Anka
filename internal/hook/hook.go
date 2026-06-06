@@ -1,8 +1,8 @@
 // Package hook runs user-configured shell-command hooks around the agent loop:
 // PreToolUse / PostToolUse fire around each tool call, UserPromptSubmit before a
 // turn, Stop after it. Hooks come from settings.json — a project
-// (.reasonix/settings.json, only when the project is trusted) and a global
-// (~/.reasonix/settings.json) file. A hook's exit
+// (.deepseek-anka/settings.json, only when the project is trusted) and a global
+// (~/.deepseek-anka/settings.json) file. A hook's exit
 // code is its verdict: 0 = pass, 2 = block (only on the gating events), other =
 // warn. The payload is delivered as JSON on stdin; output is captured (capped)
 // and surfaced to the user. This package only loads, matches, and runs hooks;
@@ -24,7 +24,7 @@ import (
 	"strings"
 	"time"
 
-	"reasonix/internal/proc"
+	"deepseek-anka/internal/proc"
 )
 
 // Event is a point in the agent loop a hook can fire at.
@@ -126,12 +126,12 @@ const (
 	SettingsFilename = "settings.json"
 )
 
-// GlobalSettingsPath is ~/.reasonix/settings.json (homeDir overrides ~).
+// GlobalSettingsPath is ~/.deepseek-anka/settings.json (homeDir overrides ~).
 func GlobalSettingsPath(homeDir string) string {
 	return filepath.Join(home(homeDir), SettingsDirname, SettingsFilename)
 }
 
-// ProjectSettingsPath is <root>/.reasonix/settings.json.
+// ProjectSettingsPath is <root>/.deepseek-anka/settings.json.
 func ProjectSettingsPath(projectRoot string) string {
 	return filepath.Join(projectRoot, SettingsDirname, SettingsFilename)
 }

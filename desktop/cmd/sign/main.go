@@ -29,7 +29,7 @@ import (
 
 	"aead.dev/minisign"
 
-	"reasonix/desktop/internal/update"
+	"deepseek-anka/desktop/internal/update"
 )
 
 // platforms are the manifest keys we publish. A built artifact is matched to a key

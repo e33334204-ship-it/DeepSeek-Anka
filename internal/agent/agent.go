@@ -9,15 +9,15 @@ import (
 	"sync/atomic"
 	"unicode/utf8"
 
-	"reasonix/internal/diff"
-	"reasonix/internal/event"
-	"reasonix/internal/evidence"
-	"reasonix/internal/instruction"
-	"reasonix/internal/jobs"
-	"reasonix/internal/memory"
-	"reasonix/internal/nilutil"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/diff"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/evidence"
+	"deepseek-anka/internal/instruction"
+	"deepseek-anka/internal/jobs"
+	"deepseek-anka/internal/memory"
+	"deepseek-anka/internal/nilutil"
+	"deepseek-anka/internal/provider"
+	"deepseek-anka/internal/tool"
 )
 
 // maxToolOutputBytes caps a single tool result before it goes into the model's

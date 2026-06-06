@@ -11,8 +11,8 @@ import (
 	"strings"
 	"sync"
 
-	"reasonix/internal/diff"
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/diff"
+	"deepseek-anka/internal/provider"
 )
 
 // Tool is a capability the model can invoke.

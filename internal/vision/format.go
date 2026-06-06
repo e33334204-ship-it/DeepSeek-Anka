@@ -11,7 +11,7 @@ import (
 var attachedImageRe = regexp.MustCompile(`\[attached_image:\s*([^\]]+)\]`)
 
 // UniqueImagePathsFromText extracts image paths from [attached_image: ...] markers
-// and @.reasonix/attachments/... references (Reasonix composer format).
+// and @.deepseek-anka/attachments/... references (Reasonix composer format).
 func UniqueImagePathsFromText(text string) []string {
 	seen := map[string]bool{}
 	var paths []string
@@ -26,8 +26,8 @@ func UniqueImagePathsFromText(text string) []string {
 	for _, m := range attachedImageRe.FindAllStringSubmatch(text, -1) {
 		add(m[1])
 	}
-	// Reasonix attachment refs: @.reasonix/attachments/foo.png
-	refRe := regexp.MustCompile(`@(\.reasonix/attachments/[^\s]+)`)
+	// Reasonix attachment refs: @.deepseek-anka/attachments/foo.png
+	refRe := regexp.MustCompile(`@(\.deepseek-anka/attachments/[^\s]+)`)
 	for _, m := range refRe.FindAllStringSubmatch(text, -1) {
 		add(m[1])
 	}
@@ -36,7 +36,7 @@ func UniqueImagePathsFromText(text string) []string {
 
 func normalizeUserRequest(text string) string {
 	s := attachedImageRe.ReplaceAllString(text, "")
-	s = regexp.MustCompile(`@\.reasonix/attachments/[^\s]+`).ReplaceAllString(s, "")
+	s = regexp.MustCompile(`@\.deepseek-anka/attachments/[^\s]+`).ReplaceAllString(s, "")
 	s = strings.Join(strings.Fields(s), " ")
 	return strings.TrimSpace(s)
 }

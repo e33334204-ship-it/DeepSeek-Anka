@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"reasonix/internal/codegraph"
-	"reasonix/internal/config"
-	"reasonix/internal/netclient"
+	"deepseek-anka/internal/codegraph"
+	"deepseek-anka/internal/config"
+	"deepseek-anka/internal/netclient"
 )
 
 // codegraphCommand backs `reasonix codegraph` — managing the CodeGraph

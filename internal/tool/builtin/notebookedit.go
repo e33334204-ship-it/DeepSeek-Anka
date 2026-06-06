@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"reasonix/internal/diff"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/diff"
+	"deepseek-anka/internal/tool"
 )
 
 func init() { tool.RegisterBuiltin(notebookEdit{}) }

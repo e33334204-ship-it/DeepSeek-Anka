@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"reasonix/internal/config"
+	"deepseek-anka/internal/config"
 )
 
 // ResolveVisionConfigFunc resolves auxiliary vision model credentials.

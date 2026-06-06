@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/provider"
 )
 
 // probeResult captures the cache-relevant numbers from one real completion.

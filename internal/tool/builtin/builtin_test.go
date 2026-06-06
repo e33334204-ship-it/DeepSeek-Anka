@@ -16,7 +16,7 @@ import (
 
 	"golang.org/x/text/encoding/simplifiedchinese"
 
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/tool"
 )
 
 // argsJSON marshals m into the JSON form a tool expects. Tests must not build

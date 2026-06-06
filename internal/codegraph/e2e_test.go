@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/plugin"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/plugin"
+	"deepseek-anka/internal/tool"
 )
 
 // TestE2ECodegraphMCP drives the whole integration against a real CodeGraph

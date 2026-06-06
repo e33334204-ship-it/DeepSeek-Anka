@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strings"
 
-	"reasonix/internal/evidence"
-	"reasonix/internal/instruction"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/evidence"
+	"deepseek-anka/internal/instruction"
+	"deepseek-anka/internal/tool"
 )
 
 func init() { tool.RegisterBuiltin(completeStep{}) }

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"reasonix/internal/i18n"
+	"deepseek-anka/internal/i18n"
 )
 
 // PrepareInputOptions mirrors openhanako prepareVisionInputForTextOnlyModel.

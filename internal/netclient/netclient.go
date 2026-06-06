@@ -14,7 +14,7 @@ import (
 
 	"golang.org/x/net/http/httpproxy"
 
-	"reasonix/internal/sysproxy"
+	"deepseek-anka/internal/sysproxy"
 )
 
 const (

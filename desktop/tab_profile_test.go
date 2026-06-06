@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/control"
+	"deepseek-anka/internal/control"
 )
 
 func testTab(id, root string) *WorkspaceTab {
@@ -153,7 +153,7 @@ func TestSaveTabsDoesNotPersistYoloMode(t *testing.T) {
 
 func userConfigPathForTest() string {
 	if dir, err := os.UserConfigDir(); err == nil {
-		return dir + "/reasonix/reasonix.toml"
+		return dir + "/deepseek-anka/reasonix.toml"
 	}
 	return ""
 }

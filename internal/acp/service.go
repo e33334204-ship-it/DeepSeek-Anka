@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 	"sync"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/control"
-	"reasonix/internal/event"
-	"reasonix/internal/plugin"
+	"deepseek-anka/internal/agent"
+	"deepseek-anka/internal/control"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/plugin"
 )
 
 // SessionParams is everything a Factory needs to assemble one ACP session's

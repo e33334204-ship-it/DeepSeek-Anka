@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"reasonix/internal/provider/openai"
+	"deepseek-anka/internal/provider/openai"
 )
 
 // FetchModels queries the provider's OpenAI-compatible GET /models endpoint and

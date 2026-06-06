@@ -18,11 +18,11 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/control"
-	"reasonix/internal/provider"
-	_ "reasonix/internal/provider/openai" // registers the "openai" provider kind
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/agent"
+	"deepseek-anka/internal/control"
+	"deepseek-anka/internal/provider"
+	_ "deepseek-anka/internal/provider/openai" // registers the "openai" provider kind
+	"deepseek-anka/internal/tool"
 )
 
 type liveFactory struct{ prov provider.Provider }

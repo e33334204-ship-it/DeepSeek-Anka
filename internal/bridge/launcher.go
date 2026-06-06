@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"reasonix/internal/config"
+	"deepseek-anka/internal/config"
 )
 
 // ConfigJSON is the bridge sidecar configuration written for the Node process.

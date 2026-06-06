@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"reasonix/internal/capabilities"
-	"reasonix/internal/provider"
-	"reasonix/internal/vision"
+	"deepseek-anka/internal/capabilities"
+	"deepseek-anka/internal/provider"
+	"deepseek-anka/internal/vision"
 )
 
 func (c *Controller) targetModel() vision.TargetModel {

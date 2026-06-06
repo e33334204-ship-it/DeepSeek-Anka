@@ -14,8 +14,8 @@ import (
 
 	"golang.org/x/text/transform"
 
-	fileenc "reasonix/internal/fileutil/encoding"
-	"reasonix/internal/tool"
+	fileenc "deepseek-anka/internal/fileutil/encoding"
+	"deepseek-anka/internal/tool"
 )
 
 const (

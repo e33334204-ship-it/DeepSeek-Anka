@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/provider"
 )
 
 // notifier is the slice of Conn the dispatch sink depends on: it pushes

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/tool"
 )
 
 func TestCanonicalizeSchemaStable(t *testing.T) {

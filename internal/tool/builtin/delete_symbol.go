@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"reasonix/internal/diff"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/diff"
+	"deepseek-anka/internal/tool"
 )
 
 func init() { tool.RegisterBuiltin(deleteSymbol{}) }

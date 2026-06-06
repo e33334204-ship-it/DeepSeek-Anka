@@ -5,8 +5,8 @@ import (
 	"io"
 	"strings"
 
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
+	"deepseek-anka/internal/event"
+	"deepseek-anka/internal/provider"
 )
 
 // TextSink renders a turn's event stream to ANSI text on an io.Writer. It is

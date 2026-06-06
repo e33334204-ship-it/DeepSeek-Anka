@@ -4,12 +4,12 @@ package main
 import (
 	"os"
 
-	"reasonix/internal/cli"
+	"deepseek-anka/internal/cli"
 
 	// Blank imports wire compile-time built-ins into their registries.
-	_ "reasonix/internal/provider/anthropic"
-	_ "reasonix/internal/provider/openai"
-	_ "reasonix/internal/tool/builtin"
+	_ "deepseek-anka/internal/provider/anthropic"
+	_ "deepseek-anka/internal/provider/openai"
+	_ "deepseek-anka/internal/tool/builtin"
 )
 
 // version is injected at build time via -ldflags "-X main.version=...".

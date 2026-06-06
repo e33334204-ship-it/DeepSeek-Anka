@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"strings"
 
-	"reasonix/internal/config"
+	"deepseek-anka/internal/config"
 )
 
 // VisionCapabilities describes coordinate grounding for structured vision analysis.

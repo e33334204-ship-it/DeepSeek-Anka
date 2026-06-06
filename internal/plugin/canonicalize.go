@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"sort"
 
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"deepseek-anka/internal/provider"
+	"deepseek-anka/internal/tool"
 )
 
 // sortToolsByName returns a new slice of tools sorted alphabetically by Name().
