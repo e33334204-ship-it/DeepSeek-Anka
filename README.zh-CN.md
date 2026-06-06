@@ -53,3 +53,11 @@ reasonix chat
 ## License
 
 MIT
+
+## 赞助支持
+
+如果 Reasonix 对你有所帮助，欢迎打赏支持作者：
+
+<p align="center">
+  <img src="docs/sponsor-qr.jpg" alt="打赏码" width="240"/>
+</p>

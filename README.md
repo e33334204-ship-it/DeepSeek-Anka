@@ -102,6 +102,14 @@ default_model = "deepseek-flash"
 
 See [docs/SPEC.md](./docs/SPEC.md) for the full schema.
 
+## 赞助支持
+
+如果 Reasonix 对你有所帮助，欢迎打赏支持作者：
+
+<p align="center">
+  <img src="docs/sponsor-qr.jpg" alt="打赏码" width="240"/>
+</p>
+
 ## License
 
 MIT — see [LICENSE](./LICENSE).
