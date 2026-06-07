@@ -63,7 +63,13 @@ func (understandImage) Execute(ctx context.Context, args json.RawMessage) (strin
 	if br == nil {
 		return "", fmt.Errorf("vision is disabled; enable [vision] in reasonix.toml and configure a vision-capable model")
 	}
-	resource, err := vision.LoadImageResource(capabilities.WorkspaceRoot(), path, path)
+	cacheKey := normalizedImageCacheKey(capabilities.WorkspaceRoot(), path)
+	for _, key := range uniqueCacheKeys(cacheKey, filepath.ToSlash(path)) {
+		if entry := br.LookupNote("", key); entry != nil && strings.TrimSpace(entry.Note) != "" {
+			return vision.WrapNote(entry.Note), nil
+		}
+	}
+	resource, err := vision.LoadImageResource(capabilities.WorkspaceRoot(), cacheKey, path)
 	if err != nil {
 		return "", err
 	}
@@ -78,4 +84,30 @@ func (understandImage) Execute(ctx context.Context, args json.RawMessage) (strin
 		return "", fmt.Errorf("vision analysis produced no note")
 	}
 	return vision.WrapNote(notes[0].Note), nil
+}
+
+func normalizedImageCacheKey(workspaceRoot, path string) string {
+	candidate := filepath.ToSlash(strings.TrimSpace(path))
+	if workspaceRoot == "" || !filepath.IsAbs(path) {
+		return candidate
+	}
+	rel, err := filepath.Rel(workspaceRoot, path)
+	if err != nil || rel == "." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) || rel == ".." {
+		return candidate
+	}
+	return filepath.ToSlash(rel)
+}
+
+func uniqueCacheKeys(keys ...string) []string {
+	seen := map[string]bool{}
+	var out []string
+	for _, key := range keys {
+		key = strings.TrimSpace(key)
+		if key == "" || seen[key] {
+			continue
+		}
+		seen[key] = true
+		out = append(out, key)
+	}
+	return out
 }

@@ -36,7 +36,9 @@ func (browserTool) Schema() json.RawMessage {
   "delta_y":{"type":"number","description":"Scroll amount in pixels"},
   "milliseconds":{"type":"integer","description":"Wait duration for wait action"},
   "session_id":{"type":"string","description":"Override session id (default: auto)"},
-  "max_chars":{"type":"integer","description":"Max characters for search content extraction"}
+  "max_chars":{"type":"integer","description":"Max characters for search content extraction"},
+  "full_page":{"type":"boolean","description":"For screenshot: capture the full scrollable page. Defaults to true."},
+  "analyze":{"type":"boolean","description":"For screenshot: run auxiliary vision analysis immediately. Defaults to false; call understand_image later when visual reasoning is needed."}
 },
 "required":["action"]
 }`)
@@ -66,6 +68,8 @@ func (t browserTool) Execute(ctx context.Context, args json.RawMessage) (string,
 		Milliseconds int     `json:"milliseconds"`
 		SessionID    string  `json:"session_id"`
 		MaxChars     int     `json:"max_chars"`
+		FullPage     *bool   `json:"full_page"`
+		Analyze      bool    `json:"analyze"`
 	}
 	if err := json.Unmarshal(args, &p); err != nil {
 		return "", fmt.Errorf("invalid args: %w", err)
@@ -116,7 +120,11 @@ func (t browserTool) Execute(ctx context.Context, args json.RawMessage) (string,
 		}
 		return out.String(), nil
 	case "screenshot":
-		png, err := mgr.Screenshot(sid)
+		fullPage := true
+		if p.FullPage != nil {
+			fullPage = *p.FullPage
+		}
+		png, err := mgr.Screenshot(sid, fullPage)
 		if err != nil {
 			return "", err
 		}
@@ -124,8 +132,12 @@ func (t browserTool) Execute(ctx context.Context, args json.RawMessage) (string,
 		if err != nil {
 			return "", err
 		}
-		out := fmt.Sprintf("Screenshot saved to @%s (%d bytes).", rel, len(png))
-		if capabilities.VisionEnabled() {
+		scope := "full page"
+		if !fullPage {
+			scope = "viewport"
+		}
+		out := fmt.Sprintf("Screenshot saved to @%s (%d bytes, %s).", rel, len(png), scope)
+		if p.Analyze && capabilities.VisionEnabled() {
 			br := capabilities.VisionBridge()
 			if br != nil {
 				if note, err := br.Analyze(ctx, rel, "browser screenshot"); err == nil {

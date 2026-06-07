@@ -7,11 +7,11 @@ const (
 	VisualPrimitivesStart = "<visual-primitives"
 	VisualPrimitivesEnd   = "</visual-primitives>"
 
-	maxNoteChars            = 3200
-	maxCacheEntries         = 256
-	maxVisualPrimitives     = 16
-	maxPrimitiveRefChars    = 96
-	analysisTimeout         = 120 // seconds
-	sessionNotesFile        = "session-vision-notes.json"
-	defaultVisionMaxTokens  = 4096
+	maxNoteChars           = 1800
+	maxCacheEntries        = 256
+	maxVisualPrimitives    = 16
+	maxPrimitiveRefChars   = 96
+	analysisTimeout        = 120 // seconds
+	sessionNotesFile       = "session-vision-notes.json"
+	defaultVisionMaxTokens = 1536
 )

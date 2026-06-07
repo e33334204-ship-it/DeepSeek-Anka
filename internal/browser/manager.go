@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -20,7 +21,13 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-const maxInstances = 5
+const (
+	maxInstances                = 5
+	defaultViewportWidth        = 1280
+	defaultViewportHeight       = 900
+	maxFullPageScreenshotWidth  = 4000
+	maxFullPageScreenshotHeight = 12000
+)
 
 // SessionState tracks a browser session's lifecycle.
 type SessionState string
@@ -41,19 +48,19 @@ type SessionInfo struct {
 
 // SnapshotResult is the rich output of a snapshot action.
 type SnapshotResult struct {
-	URL         string `json:"url"`
-	Title       string `json:"title"`
-	DOMSnapshot string `json:"domSnapshot"`
-	Screenshot  string `json:"screenshot,omitempty"` // data:image/png;base64,...
-	ElementCount int   `json:"elementCount"`
+	URL          string `json:"url"`
+	Title        string `json:"title"`
+	DOMSnapshot  string `json:"domSnapshot"`
+	Screenshot   string `json:"screenshot,omitempty"` // data:image/png;base64,...
+	ElementCount int    `json:"elementCount"`
 }
 
 // SearchResult is the output of a web search action.
 type SearchResult struct {
-	URL      string `json:"url"`
-	Title    string `json:"title"`
-	Snippet  string `json:"snippet"`
-	Content  string `json:"content,omitempty"` // extracted body text
+	URL     string `json:"url"`
+	Title   string `json:"title"`
+	Snippet string `json:"snippet"`
+	Content string `json:"content,omitempty"` // extracted body text
 }
 
 // Manager owns per-session Chromium instances.
@@ -137,6 +144,7 @@ func (m *Manager) allocOpts() []chromedp.ExecAllocatorOption {
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.Flag("disable-gpu", true),
 		chromedp.Flag("no-sandbox", true),
+		chromedp.WindowSize(defaultViewportWidth, defaultViewportHeight),
 	)
 	if m.headless {
 		opts = append(opts, chromedp.Flag("headless", true))
@@ -481,8 +489,9 @@ func (m *Manager) SnapshotText(sessionID string) (string, error) {
 
 // ─── Screenshot ──────────────────────────────────────────────────────────────
 
-// Screenshot captures the current viewport as PNG bytes.
-func (m *Manager) Screenshot(sessionID string) ([]byte, error) {
+// Screenshot captures the current page as PNG bytes. When fullPage is true it
+// captures the scrollable page area, capped to avoid giant images.
+func (m *Manager) Screenshot(sessionID string, fullPage bool) ([]byte, error) {
 	s, err := m.getSession(sessionID)
 	if err != nil {
 		return nil, err
@@ -490,7 +499,16 @@ func (m *Manager) Screenshot(sessionID string) ([]byte, error) {
 	var buf []byte
 	if err := chromedp.Run(s.ctx, chromedp.ActionFunc(func(ctx context.Context) error {
 		var err error
-		buf, err = page.CaptureScreenshot().WithFormat(page.CaptureScreenshotFormatPng).Do(ctx)
+		if fullPage {
+			buf, err = captureFullPageScreenshot(ctx)
+			if err == nil && len(buf) > 0 {
+				return nil
+			}
+		}
+		buf, err = page.CaptureScreenshot().
+			WithFormat(page.CaptureScreenshotFormatPng).
+			WithOptimizeForSpeed(true).
+			Do(ctx)
 		return err
 	})); err != nil {
 		return nil, err
@@ -498,9 +516,36 @@ func (m *Manager) Screenshot(sessionID string) ([]byte, error) {
 	return buf, nil
 }
 
+func captureFullPageScreenshot(ctx context.Context) ([]byte, error) {
+	_, _, _, _, visualViewport, contentSize, err := page.GetLayoutMetrics().Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if contentSize == nil {
+		return nil, fmt.Errorf("page content size unavailable")
+	}
+	width := math.Ceil(contentSize.Width)
+	height := math.Ceil(contentSize.Height)
+	if visualViewport != nil {
+		width = math.Max(width, math.Ceil(visualViewport.ClientWidth))
+		height = math.Max(height, math.Ceil(visualViewport.ClientHeight))
+	}
+	if width <= 0 || height <= 0 {
+		return nil, fmt.Errorf("invalid page content size %.0fx%.0f", width, height)
+	}
+	width = math.Min(width, maxFullPageScreenshotWidth)
+	height = math.Min(height, maxFullPageScreenshotHeight)
+	return page.CaptureScreenshot().
+		WithFormat(page.CaptureScreenshotFormatPng).
+		WithClip(&page.Viewport{X: 0, Y: 0, Width: width, Height: height, Scale: 1}).
+		WithCaptureBeyondViewport(true).
+		WithOptimizeForSpeed(true).
+		Do(ctx)
+}
+
 // ScreenshotBase64 returns a data URL for model/tool output.
 func (m *Manager) ScreenshotBase64(sessionID string) (string, error) {
-	raw, err := m.Screenshot(sessionID)
+	raw, err := m.Screenshot(sessionID, true)
 	if err != nil {
 		return "", err
 	}

@@ -62,6 +62,9 @@ func TestResourceFromFile(t *testing.T) {
 	if res.Key == "" {
 		t.Error("expected non-empty key")
 	}
+	if want := filepath.ToSlash(imgPath); res.Key != want {
+		t.Errorf("expected path cache key %q, got %q", want, res.Key)
+	}
 	if res.Label != "test.png" {
 		t.Errorf("expected label 'test.png', got %q", res.Label)
 	}

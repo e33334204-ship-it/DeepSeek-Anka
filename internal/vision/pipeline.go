@@ -102,8 +102,12 @@ func resourceFromFile(workspaceRoot, filePath string) (*VisualResource, error) {
 	mime := detectMIME(data, abs)
 	hash := sha256.Sum256(data)
 	contentHash := hex.EncodeToString(hash[:])
+	key := filepath.ToSlash(filePath)
+	if key == "" {
+		key = ImageResourceKey(ImageInput{MimeType: mime}, contentHash)
+	}
 	return &VisualResource{
-		Key:         ImageResourceKey(ImageInput{MimeType: mime}, contentHash),
+		Key:         key,
 		Label:       filepath.Base(abs),
 		ContentHash: contentHash,
 		Image:       ImageInput{Data: data, MimeType: mime},
