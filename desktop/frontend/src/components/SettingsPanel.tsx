@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { asArray } from "../lib/array";
 import { app } from "../lib/bridge";
 import { visionModelRefs } from "../lib/visionModels";
+import { VISION_PROVIDER_TEMPLATES } from "../lib/visionProviderTemplates";
 import { normalizeLangPref, useI18n, useT, type LangPref } from "../lib/i18n";
 import { useUpdater } from "../lib/useUpdater";
 import {
@@ -586,15 +587,24 @@ function ModelsSection({ s, busy, apply, onManageProviders }: SectionProps & { o
       {s.vision?.enabled && visionRef && !visionRefs.includes(visionRef) && (
         <p className="settings-hint settings-hint--warn">{t("settings.vision.modelNotImageCapable")}</p>
       )}
-      {visionRefs.length === 0 && (
-        <p className="settings-hint settings-hint--warn">
-          {t("settings.vision.noImageModels")}
-          {" "}
-          <button type="button" className="btn btn--small" disabled={busy} onClick={onManageProviders}>
-            {t("settings.manageProviders")}
-          </button>
-        </p>
+      {visionRefs.length === 0 && s.vision?.enabled && (
+        <VisionProviderSetup busy={busy} apply={apply} />
       )}
+      {visionRefs.length === 0 && !s.vision?.enabled && (
+        <p className="settings-hint">{t("settings.vision.setupWhenEnabled")}</p>
+      )}
+
+      {visionRef && (() => {
+        const providerName = visionRef.split("/")[0];
+        const prov = s.providers.find((p) => p.name === providerName);
+        if (!prov?.apiKeyEnv || prov.keySet) return null;
+        return (
+          <div className="vision-key-setup">
+            <p className="settings-hint settings-hint--warn">{t("settings.vision.keyRequired")}</p>
+            <KeyField apiKeyEnv={prov.apiKeyEnv} busy={busy} onSet={(v) => apply(() => app.SetProviderKey(prov.apiKeyEnv, v))} />
+          </div>
+        );
+      })()}
 
       <div className="settings-model-card">
         <div>
@@ -620,6 +630,83 @@ function ModelsSection({ s, busy, apply, onManageProviders }: SectionProps & { o
         </div>
       </div>
     </section>
+  );
+}
+
+function VisionProviderSetup({ busy, apply }: { busy: boolean; apply: (fn: () => Promise<void>) => Promise<void> }) {
+  const t = useT();
+  const [templateId, setTemplateId] = useState(VISION_PROVIDER_TEMPLATES[0]?.id ?? "");
+  const [modelId, setModelId] = useState(VISION_PROVIDER_TEMPLATES[0]?.visionModel ?? "");
+  const [apiKey, setApiKey] = useState("");
+
+  const template = VISION_PROVIDER_TEMPLATES.find((x) => x.id === templateId) ?? VISION_PROVIDER_TEMPLATES[0];
+  const models = template?.provider.models ?? [];
+
+  useEffect(() => {
+    if (!template) return;
+    if (!models.includes(modelId)) {
+      setModelId(template.visionModel);
+    }
+  }, [templateId, template, models, modelId]);
+
+  if (!template) return null;
+
+  const save = () => {
+    const ref = `${template.provider.name}/${modelId}`;
+    void apply(async () => {
+      await app.SetupVisionProvider({ ...template.provider, keySet: false }, ref, apiKey.trim());
+    });
+    setApiKey("");
+  };
+
+  return (
+    <div className="vision-setup-card">
+      <p className="settings-hint settings-hint--warn">{t("settings.vision.noImageModels")}</p>
+      <div className="set-row">
+        <label className="set-label">{t("settings.vision.template")}</label>
+        <select
+          className="mem-select set-grow"
+          value={templateId}
+          disabled={busy}
+          onChange={(e) => setTemplateId(e.target.value)}
+        >
+          {VISION_PROVIDER_TEMPLATES.map((tpl) => (
+            <option key={tpl.id} value={tpl.id}>
+              {t(tpl.labelKey)}
+            </option>
+          ))}
+        </select>
+      </div>
+      <p className="settings-hint">{t(template.hintKey)}</p>
+      {models.length > 1 && (
+        <div className="set-row">
+          <label className="set-label">{t("settings.vision.model")}</label>
+          <select className="mem-select set-grow" value={modelId} disabled={busy} onChange={(e) => setModelId(e.target.value)}>
+            {models.map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+      <div className="set-row">
+        <label className="set-label">{t("settings.vision.apiKey")}</label>
+        <input
+          className="mem-input set-grow"
+          type="password"
+          placeholder={t("settings.vision.apiKeyPlaceholder")}
+          value={apiKey}
+          disabled={busy}
+          onChange={(e) => setApiKey(e.target.value)}
+        />
+      </div>
+      <div className="prov-card__actions">
+        <button className="btn btn--primary btn--small" disabled={busy || !apiKey.trim()} onClick={save}>
+          {t("settings.vision.saveAndEnable")}
+        </button>
+      </div>
+    </div>
   );
 }
 

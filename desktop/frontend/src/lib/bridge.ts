@@ -166,6 +166,7 @@ export interface AppBindings {
   SetDefaultModel(ref: string): Promise<void>;
   SetPlannerModel(ref: string): Promise<void>;
   SetVision(enabled: boolean, model: string): Promise<void>;
+  SetupVisionProvider(p: ProviderView, visionModelRef: string, apiKey: string): Promise<void>;
   SetExtendedCapabilities(cap: ExtendedCapabilitiesView): Promise<void>;
   BridgeStatus(): Promise<BridgeStatusView>;
   RestartBridge(): Promise<void>;
@@ -1376,6 +1377,23 @@ function makeMockApp(): AppBindings {
         model,
         modelRef: slash > 0 ? { provider: model.slice(0, slash), id: model.slice(slash + 1) } : { provider: "", id: model },
       };
+    },
+    async SetupVisionProvider(p: ProviderView, visionModelRef: string, apiKey: string) {
+      const slash = visionModelRef.indexOf("/");
+      const i = settings.providers.findIndex((x) => x.name === p.name);
+      const saved = { ...p, keySet: true };
+      if (i >= 0) settings.providers[i] = saved;
+      else settings.providers.push(saved);
+      settings.vision = {
+        enabled: true,
+        model: visionModelRef,
+        modelRef: slash > 0 ? { provider: visionModelRef.slice(0, slash), id: visionModelRef.slice(slash + 1) } : { provider: "", id: visionModelRef },
+      };
+      const candidates = settings.visionModelCandidates ?? [];
+      if (!candidates.includes(visionModelRef)) {
+        settings.visionModelCandidates = [...candidates, visionModelRef];
+      }
+      void apiKey;
     },
     async SetExtendedCapabilities(cap: ExtendedCapabilitiesView) {
       settings.capabilities = { ...cap };

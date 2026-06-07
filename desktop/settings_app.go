@@ -612,6 +612,63 @@ func (a *App) SetVision(enabled bool, model string) error {
 	return a.applyConfigChange(mutate)
 }
 
+// SetupVisionProvider adds or updates a vision-capable provider, stores its API key,
+// and selects it as the auxiliary vision model in one step.
+func (a *App) SetupVisionProvider(p ProviderView, visionModelRef string, apiKey string) error {
+	ref := strings.TrimSpace(visionModelRef)
+	if ref == "" {
+		return fmt.Errorf("vision model ref is required")
+	}
+	if strings.TrimSpace(p.Name) == "" || strings.TrimSpace(p.BaseURL) == "" {
+		return fmt.Errorf("provider name and base_url are required")
+	}
+	key := strings.TrimSpace(apiKey)
+	if key == "" {
+		return fmt.Errorf("API key is required to enable vision")
+	}
+	if strings.TrimSpace(p.APIKeyEnv) == "" {
+		return fmt.Errorf("provider api_key_env is required")
+	}
+	if err := upsertDotEnv(p.APIKeyEnv, key); err != nil {
+		return err
+	}
+	return a.applyConfigChange(func(c *config.Config) error {
+		e := config.ProviderEntry{
+			Name: p.Name, Kind: p.Kind, BaseURL: p.BaseURL,
+			APIKeyEnv: p.APIKeyEnv, BalanceURL: strings.TrimSpace(p.BalanceURL), ContextWindow: p.ContextWindow,
+		}
+		if len(p.Models) > 0 {
+			e.Model = p.Models[0]
+			if len(p.Models) > 1 {
+				e.Models = p.Models
+				e.Default = p.Default
+			}
+		}
+		if err := c.UpsertProvider(e); err != nil {
+			return err
+		}
+		c.Vision.Enabled = true
+		c.Vision.Model = ref
+		slash := strings.Index(ref, "/")
+		if slash <= 0 {
+			return fmt.Errorf("vision model ref must be provider/model")
+		}
+		provName := ref[:slash]
+		modelID := ref[slash+1:]
+		entry, ok := c.ResolveModel(provName)
+		if !ok || entry == nil {
+			return fmt.Errorf("vision provider %q not found after save", provName)
+		}
+		if !vision.ModelSupportsImage(entry, modelID) {
+			return fmt.Errorf("vision model must support image input (e.g. gpt-4o, qwen-vl-max)")
+		}
+		if _, err := c.ResolveVisionModel(); err != nil {
+			return err
+		}
+		return nil
+	})
+}
+
 func visionModelCandidates(cfg *config.Config) []string {
 	if cfg == nil {
 		return []string{}

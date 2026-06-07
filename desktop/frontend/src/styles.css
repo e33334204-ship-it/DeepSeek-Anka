@@ -5451,6 +5451,19 @@ a[href] {
   color: var(--text-muted);
   line-height: 1.45;
 }
+.settings-hint--warn {
+  color: var(--accent, #e8a838);
+}
+.vision-setup-card {
+  margin: 8px 0 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+}
+.vision-key-setup {
+  margin: 8px 0 4px;
+}
 .settings-model-card {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
