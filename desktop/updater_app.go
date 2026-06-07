@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 
 	wruntime "github.com/wailsapp/wails/v2/pkg/runtime"
 
@@ -134,17 +135,43 @@ func (a *App) downloadVerify(asset update.Asset) ([]byte, error) {
 		return nil, err
 	}
 	a.emitProgress("verifying", asset.Size, asset.Size, "")
-	sig, err := fetchBytes(a.reqCtx(), c, asset.Sig)
-	if err != nil {
-		return nil, err
-	}
-	if err := update.Verify(data, sig); err != nil {
-		return nil, err
-	}
-	if err := checkSHA256(data, asset.SHA256); err != nil {
+	if err := a.verifyDownload(data, asset); err != nil {
 		return nil, err
 	}
 	return data, nil
+}
+
+func (a *App) verifyDownload(data []byte, asset update.Asset) error {
+	sigURL := strings.TrimSpace(asset.Sig)
+	if sigURL != "" {
+		c, err := httpClient()
+		if err != nil {
+			return err
+		}
+		sig, err := fetchBytes(a.reqCtx(), c, sigURL)
+		if err == nil {
+			if err := update.Verify(data, sig); err != nil {
+				return err
+			}
+			return checkSHA256(data, asset.SHA256)
+		}
+		// Unsigned community releases fall back to sha256-only verification.
+		if !isNotFound(err) {
+			return err
+		}
+	}
+	if asset.SHA256 == "" {
+		return fmt.Errorf("update: no signature and no sha256 digest")
+	}
+	return checkSHA256(data, asset.SHA256)
+}
+
+func isNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	return strings.Contains(msg, "404") || strings.Contains(msg, "Not Found")
 }
 
 // reqCtx is the context for updater HTTP calls — the Wails context once startup has
