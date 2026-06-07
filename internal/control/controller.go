@@ -243,9 +243,6 @@ func New(opts Options) *Controller {
 			}
 		})
 		c.executor.SetMemoryQueue(c)
-		if c.executor.PreStreamMutator == nil {
-			c.executor.PreStreamMutator = c.makeVisionPipelineMutator()
-		}
 	}
 	return c
 }
@@ -652,14 +649,13 @@ func (c *Controller) RunShell(command string) {
 // turn with it prepended (or the raw line when nothing resolved).
 func (c *Controller) runRefTurn(input string) {
 	c.runGuarded(func(ctx context.Context) error {
-		prepared, _ := c.prepareVisionForInput(ctx, input)
-		block, errs := c.ResolveRefs(ctx, prepared)
+		block, errs := c.ResolveRefs(ctx, input)
 		for _, e := range errs {
 			c.notice(e)
 		}
-		sent := prepared
+		sent := input
 		if block != "" {
-			sent = "Referenced context:\n\n" + block + "\n\n" + prepared
+			sent = "Referenced context:\n\n" + block + "\n\n" + input
 		}
 		return c.runTurnWithRaw(ctx, sent, input)
 	})

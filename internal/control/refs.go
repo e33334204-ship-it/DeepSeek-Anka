@@ -205,8 +205,6 @@ func (c *Controller) ResolveRefs(ctx context.Context, line string) (block string
 				}
 				if entry := br.LookupNote(c.sessionPath, path); entry != nil && strings.TrimSpace(entry.Note) != "" {
 					body = vision.WrapNote(entry.Note) + "\n\n" + body
-				} else if target := c.targetModel(); vision.RequiresAuxiliaryVision(target) {
-					body += " — vision note pending; auxiliary vision should have prepared this image"
 				}
 			}
 			appendRefBlock(&b, "image", `path="`+r.path+`"`, body)

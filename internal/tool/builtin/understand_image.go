@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -55,9 +54,6 @@ func (understandImage) Execute(ctx context.Context, args json.RawMessage) (strin
 			return "", err
 		}
 		path = clean
-	}
-	if _, err := os.Stat(path); err != nil {
-		return "", err
 	}
 	br := capabilities.VisionBridge()
 	if br == nil {
