@@ -494,8 +494,9 @@ function ModelsSection({ s, busy, apply, onManageProviders }: SectionProps & { o
   const refs = allRefs(s);
   const baseVisionRefs = s.visionModelCandidates?.length ? s.visionModelCandidates : visionModelRefs(s.providers);
   const visionRef = toRef(s.vision?.model || "", s);
-  const visionRefs =
-    visionRef && !baseVisionRefs.includes(visionRef) ? [...baseVisionRefs, visionRef] : baseVisionRefs;
+  const visionProvider = visionRef ? providerForModelRef(visionRef, s.providers) : undefined;
+  const visionRefUsable = !!visionRef && !!visionProvider && baseVisionRefs.includes(visionRef);
+  const visionRefs = baseVisionRefs;
   const defaultRef = toRef(s.defaultModel, s);
   const plannerRef = toRef(s.plannerModel, s);
   const [defaultProvider, defaultModel] = defaultRef.split("/");
@@ -585,7 +586,7 @@ function ModelsSection({ s, busy, apply, onManageProviders }: SectionProps & { o
       {s.vision?.enabled && !visionRef && (
         <p className="settings-hint settings-hint--warn">{t("settings.vision.modelRequired")}</p>
       )}
-      {s.vision?.enabled && visionRef && !visionRefs.includes(visionRef) && (
+      {s.vision?.enabled && visionRef && !visionRefUsable && (
         <p className="settings-hint settings-hint--warn">{t("settings.vision.modelNotImageCapable")}</p>
       )}
       {visionRefs.length === 0 && s.vision?.enabled && (
@@ -599,8 +600,7 @@ function ModelsSection({ s, busy, apply, onManageProviders }: SectionProps & { o
       )}
 
       {visionRef && (() => {
-        const providerName = visionRef.split("/")[0];
-        const prov = s.providers.find((p) => p.name === providerName);
+        const prov = visionProvider;
         if (!prov?.apiKeyEnv || prov.keySet) return null;
         return (
           <div className="vision-key-setup">
@@ -635,6 +635,17 @@ function ModelsSection({ s, busy, apply, onManageProviders }: SectionProps & { o
       </div>
     </section>
   );
+}
+
+function providerForModelRef(ref: string, providers: readonly ProviderView[]): ProviderView | undefined {
+  const trimmed = ref.trim();
+  if (!trimmed) return undefined;
+  const slash = trimmed.indexOf("/");
+  if (slash > 0) {
+    const name = trimmed.slice(0, slash);
+    return providers.find((p) => p.name === name);
+  }
+  return providers.find((p) => p.models.includes(trimmed) || p.default === trimmed);
 }
 
 function VisionProviderSetup({

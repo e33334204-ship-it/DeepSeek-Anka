@@ -101,22 +101,22 @@ type ExtendedCapabilitiesView struct {
 
 // SettingsView is the whole Settings panel payload.
 type SettingsView struct {
-	DefaultModel      string          `json:"defaultModel"`
-	PlannerModel      string          `json:"plannerModel"`
-	AutoPlan          string          `json:"autoPlan"`
-	Vision            VisionView      `json:"vision"`
-	Capabilities      ExtendedCapabilitiesView `json:"capabilities"`
-	Providers         []ProviderView  `json:"providers"`
-	Permissions       PermissionsView `json:"permissions"`
-	Sandbox           SandboxView     `json:"sandbox"`
-	Network           NetworkView     `json:"network"`
-	Agent             AgentView       `json:"agent"`
-	DesktopLanguage   string          `json:"desktopLanguage"`
-	DesktopTheme      string          `json:"desktopTheme"`
-	DesktopThemeStyle string          `json:"desktopThemeStyle"`
-	CloseBehavior     string          `json:"closeBehavior"`
-	ConfigPath            string   `json:"configPath"`
-	VisionModelCandidates []string `json:"visionModelCandidates"`
+	DefaultModel          string                   `json:"defaultModel"`
+	PlannerModel          string                   `json:"plannerModel"`
+	AutoPlan              string                   `json:"autoPlan"`
+	Vision                VisionView               `json:"vision"`
+	Capabilities          ExtendedCapabilitiesView `json:"capabilities"`
+	Providers             []ProviderView           `json:"providers"`
+	Permissions           PermissionsView          `json:"permissions"`
+	Sandbox               SandboxView              `json:"sandbox"`
+	Network               NetworkView              `json:"network"`
+	Agent                 AgentView                `json:"agent"`
+	DesktopLanguage       string                   `json:"desktopLanguage"`
+	DesktopTheme          string                   `json:"desktopTheme"`
+	DesktopThemeStyle     string                   `json:"desktopThemeStyle"`
+	CloseBehavior         string                   `json:"closeBehavior"`
+	ConfigPath            string                   `json:"configPath"`
+	VisionModelCandidates []string                 `json:"visionModelCandidates"`
 	// ProviderKinds lists the provider implementations the kernel actually
 	// registered (provider.Kinds()), so the editor's "kind" picker offers only
 	// kinds that resolve — selecting an unregistered one would fail the rebuild.
@@ -185,8 +185,8 @@ func (a *App) Settings() SettingsView {
 				Password: cfg.Network.Proxy.Password,
 			},
 		},
-		Agent:             AgentView{Temperature: cfg.Agent.Temperature, MaxSteps: cfg.Agent.MaxSteps, SystemPrompt: cfg.Agent.SystemPrompt},
-		Vision:            visionViewFromConfig(cfg),
+		Agent:  AgentView{Temperature: cfg.Agent.Temperature, MaxSteps: cfg.Agent.MaxSteps, SystemPrompt: cfg.Agent.SystemPrompt},
+		Vision: visionViewFromConfig(cfg),
 		Capabilities: ExtendedCapabilitiesView{
 			ComputerEnabled:            cfg.Computer.Enabled,
 			AllowWindowsInputInjection: cfg.Computer.AllowWindowsInputInjection,
@@ -204,13 +204,13 @@ func (a *App) Settings() SettingsView {
 			QQAppSecret:                cfg.Bridge.QQ.AppSecret,
 		},
 		VisionModelCandidates: visionModelCandidates(cfg),
-		DesktopLanguage:   cfg.DesktopLanguage(),
-		DesktopTheme:      cfg.DesktopTheme(),
-		DesktopThemeStyle: cfg.DesktopThemeStyle(),
-		CloseBehavior:     cfg.DesktopCloseBehavior(),
-		ConfigPath:        cfgPath,
-		ProviderKinds:     nonNil(provider.Kinds()),
-		Bypass:            ctrl != nil && ctrl.Bypass(),
+		DesktopLanguage:       cfg.DesktopLanguage(),
+		DesktopTheme:          cfg.DesktopTheme(),
+		DesktopThemeStyle:     cfg.DesktopThemeStyle(),
+		CloseBehavior:         cfg.DesktopCloseBehavior(),
+		ConfigPath:            cfgPath,
+		ProviderKinds:         nonNil(provider.Kinds()),
+		Bypass:                ctrl != nil && ctrl.Bypass(),
 	}
 	for i := range cfg.Providers {
 		p := &cfg.Providers[i]
@@ -807,6 +807,38 @@ func repairCorruptedProviderKeys(cfg *config.Config) bool {
 	return changed
 }
 
+// repairBrokenVisionRef keeps old/bad preset refs from leaving vision enabled but
+// pointed at a provider that is no longer configured. Prefer the same model under
+// another provider; otherwise choose the first configured image-capable model.
+func repairBrokenVisionRef(cfg *config.Config) bool {
+	if cfg == nil || !cfg.Vision.Enabled || strings.TrimSpace(cfg.Vision.Model) == "" {
+		return false
+	}
+	if _, ok := cfg.ResolveModel(cfg.Vision.Model); ok {
+		return false
+	}
+	_, wantedModel, hasProvider := strings.Cut(strings.TrimSpace(cfg.Vision.Model), "/")
+	if hasProvider {
+		for i := range cfg.Providers {
+			p := &cfg.Providers[i]
+			if p.HasModel(wantedModel) && vision.ModelSupportsImage(p, wantedModel) {
+				cfg.Vision.Model = p.Name + "/" + wantedModel
+				return true
+			}
+		}
+	}
+	for i := range cfg.Providers {
+		p := &cfg.Providers[i]
+		for _, model := range p.ModelList() {
+			if vision.ModelSupportsImage(p, model) {
+				cfg.Vision.Model = p.Name + "/" + model
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func repairUserConfigOnStartup() {
 	cleanInvalidCredentialKeys()
 	path := config.UserConfigPath()
@@ -814,7 +846,11 @@ func repairUserConfigOnStartup() {
 		return
 	}
 	cfg := config.LoadForEdit(path)
-	if !repairCorruptedProviderKeys(cfg) {
+	changed := repairCorruptedProviderKeys(cfg)
+	if repairBrokenVisionRef(cfg) {
+		changed = true
+	}
+	if !changed {
 		return
 	}
 	_ = cfg.SaveTo(path)

@@ -34,7 +34,7 @@ var assets embed.FS
 // mirroring cmd/deepseek-anka/main.go. The auto-updater reads it (App.Version) to compare
 // against the published manifest; an un-injected dev build stays "dev" and never
 // prompts to update.
-var version = "v1.0.12"
+var version = "v1.0.13"
 
 func main() {
 	app := NewApp()

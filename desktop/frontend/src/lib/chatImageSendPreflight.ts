@@ -92,8 +92,8 @@ function canUseVisionAuxiliary(settings: SettingsView | null | undefined): boole
   const vision = settings?.vision;
   if (!vision?.enabled || !vision.model?.trim()) return false;
   const provider = findProvider(vision.model, settings?.providers ?? []);
-  if (provider && !provider.keySet) return false;
-  return true;
+  if (!provider || !provider.keySet) return false;
+  return isImageCapableRef(vision.model, provider.baseUrl);
 }
 
 export function evaluateChatImageSendPreflight({

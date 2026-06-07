@@ -3,6 +3,7 @@ package main
 import (
 	"testing"
 
+	"deepseek-anka/internal/config"
 	"deepseek-anka/internal/provider"
 )
 
@@ -36,5 +37,26 @@ func TestWithFreshSystemPromptPrependsMissingSystemMessage(t *testing.T) {
 	}
 	if got[1].Content != "hello" {
 		t.Fatalf("existing user message changed: %+v", got[1])
+	}
+}
+
+func TestRepairBrokenVisionRefUsesConfiguredProviderForSameModel(t *testing.T) {
+	cfg := &config.Config{
+		Vision: config.VisionConfig{Enabled: true, Model: "kimi-coding-vision/kimi-k2.6"},
+		Providers: []config.ProviderEntry{{
+			Name:      "moonshot-vision",
+			Kind:      "openai",
+			BaseURL:   "https://api.moonshot.cn/v1",
+			Models:    []string{"kimi-k2.6", "kimi-k2.5"},
+			Default:   "kimi-k2.5",
+			APIKeyEnv: "MOONSHOT_API_KEY",
+		}},
+	}
+
+	if !repairBrokenVisionRef(cfg) {
+		t.Fatal("repairBrokenVisionRef returned false")
+	}
+	if cfg.Vision.Model != "moonshot-vision/kimi-k2.6" {
+		t.Fatalf("vision model = %q, want moonshot-vision/kimi-k2.6", cfg.Vision.Model)
 	}
 }
