@@ -576,12 +576,12 @@ func (a *App) MigrateDesktopPreferences(language, theme, style string) error {
 // Toggling enabled alone does not validate a previously stored model — validation
 // runs only when model is explicitly set in the same call.
 func (a *App) SetVision(enabled bool, model string) error {
-	return a.applyConfigChange(func(c *config.Config) error {
+	ref := strings.TrimSpace(model)
+	mutate := func(c *config.Config) error {
 		c.Vision.Enabled = enabled
 		if !enabled {
 			return nil
 		}
-		ref := strings.TrimSpace(model)
 		if ref == "" {
 			return nil
 		}
@@ -597,7 +597,19 @@ func (a *App) SetVision(enabled bool, model string) error {
 			return fmt.Errorf("vision model must support image input. Select a vision-capable model such as gpt-4o or qwen-vl-max")
 		}
 		return nil
-	})
+	}
+	// Enable/disable without choosing a model should not block on controller rebuild —
+	// users often turn vision on first, then add a vision provider and pick a model.
+	if ref == "" {
+		if err := a.applyConfigOnly(mutate); err != nil {
+			return err
+		}
+		if !enabled {
+			return a.rebuild()
+		}
+		return nil
+	}
+	return a.applyConfigChange(mutate)
 }
 
 func visionModelCandidates(cfg *config.Config) []string {

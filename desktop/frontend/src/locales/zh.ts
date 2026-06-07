@@ -443,7 +443,7 @@ export const zh: Record<DictKey, string> = {
   "settings.vision.modelPlaceholder": "选择视觉模型…",
   "settings.vision.modelRequired": "启用视觉辅助时必须选择支持图片输入的视觉模型。",
   "settings.vision.modelNotImageCapable": "当前所选模型似乎不支持图片输入，请选择视觉模型（如 gpt-4o、qwen-vl-max）。",
-  "settings.vision.noImageModels": "提供商中未找到支持图片的模型，请先添加视觉模型提供商。",
+  "settings.vision.noImageModels": "提供商中未找到支持图片的模型。请先在「模型服务」添加视觉模型提供商（如 OpenAI 的 gpt-4o，或阿里 dashscope 的 qwen-vl-max），并填写 API Key。",
   "settings.vision.on": "视觉已开",
   "settings.vision.off": "视觉未开",
   "settings.capabilities.hint": "电脑操控、内置浏览器、IM 桥接（飞书/微信/QQ）。启用桥接后运行 reasonix bridge。",

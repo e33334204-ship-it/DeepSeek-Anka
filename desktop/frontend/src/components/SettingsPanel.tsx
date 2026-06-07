@@ -587,7 +587,13 @@ function ModelsSection({ s, busy, apply, onManageProviders }: SectionProps & { o
         <p className="settings-hint settings-hint--warn">{t("settings.vision.modelNotImageCapable")}</p>
       )}
       {visionRefs.length === 0 && (
-        <p className="settings-hint">{t("settings.vision.noImageModels")}</p>
+        <p className="settings-hint settings-hint--warn">
+          {t("settings.vision.noImageModels")}
+          {" "}
+          <button type="button" className="btn btn--small" disabled={busy} onClick={onManageProviders}>
+            {t("settings.manageProviders")}
+          </button>
+        </p>
       )}
 
       <div className="settings-model-card">

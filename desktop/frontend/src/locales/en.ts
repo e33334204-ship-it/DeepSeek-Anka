@@ -442,7 +442,7 @@ export const en = {
   "settings.vision.modelPlaceholder": "Select a vision model…",
   "settings.vision.modelRequired": "A vision-capable model is required when auxiliary vision is enabled.",
   "settings.vision.modelNotImageCapable": "The selected model does not appear to support image input — choose a vision model (e.g. gpt-4o, qwen-vl-max).",
-  "settings.vision.noImageModels": "No image-capable models found in providers — add a vision provider first.",
+  "settings.vision.noImageModels": "No image-capable models in providers. Add a vision provider under Model services first (e.g. OpenAI gpt-4o or DashScope qwen-vl-max) and set its API key.",
   "settings.vision.on": "Vision on",
   "settings.vision.off": "Vision off",
   "settings.capabilities.hint": "Computer control, built-in browser, and IM bridge (Feishu / WeChat / QQ). Run `reasonix bridge` after enabling bridge.",
