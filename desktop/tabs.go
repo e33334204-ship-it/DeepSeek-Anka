@@ -2186,7 +2186,7 @@ func globalWorkspaceRoot() string {
 		home, _ := os.UserHomeDir()
 		return filepath.Join(home, ".deepseek-anka", "global-workspace")
 	}
-	return filepath.Join(dir, "reasonix", "global-workspace")
+	return filepath.Join(dir, "deepseek-anka", "global-workspace")
 }
 
 func ensureGlobalWorkspaceRoot() (string, error) {

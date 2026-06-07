@@ -30,11 +30,11 @@ import (
 // has no Wails dependency so the logic is unit-tested directly; updater_app.go is
 // the thin Wails binding that wires these into App methods and progress events.
 
-// Manifest endpoints — R2 CDN first (fast, especially in CN), GitHub releases as
-// fallback. Mirrors the v1 desktop's two-endpoint scheme.
+// Manifest endpoints — DeepSeek-Anka uses its own GitHub releases only. Do NOT
+// point at the upstream Reasonix R2 CDN (v1.2.x) or users would get the wrong product.
 const (
-	manifestPrimary     = "https://pub-147fb53b9c1e4bbf891a257968619ea7.r2.dev/latest/latest.json"
-	manifestFallback    = "https://github.com/e33334204-ship-it/DeepSeek-Anka/releases/latest/download/latest.json"
+	manifestPrimary     = "https://github.com/e33334204-ship-it/DeepSeek-Anka/releases/latest/download/latest.json"
+	manifestFallback    = "https://github.com/e33334204-ship-it/DeepSeek-Anka/releases/download/deepseek-anka-v1.0.2/latest.json"
 	defaultDownloadPage = "https://github.com/e33334204-ship-it/DeepSeek-Anka/releases/latest"
 	httpTimeout         = 15 * time.Second
 )
