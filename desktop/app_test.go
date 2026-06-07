@@ -65,6 +65,17 @@ func TestCommandsIncludesEffortNotThinking(t *testing.T) {
 	}
 }
 
+func TestCloseToBackgroundIsMacOnly(t *testing.T) {
+	if !shouldHideWindowOnCloseForGOOS("background", "darwin") {
+		t.Fatal("macOS should allow close-to-background")
+	}
+	for _, goos := range []string{"windows", "linux"} {
+		if shouldHideWindowOnCloseForGOOS("background", goos) {
+			t.Fatalf("%s should quit on close when no tray/menu restore is available", goos)
+		}
+	}
+}
+
 func TestEffortDefaultsBeforeStartup(t *testing.T) {
 	isolateDesktopUserDirs(t)
 
@@ -148,8 +159,9 @@ close_behavior = "quit"
 	}
 
 	got := NewApp().Settings()
-	if got.DesktopLanguage != "en" || got.DesktopTheme != "dark" || got.DesktopThemeStyle != "graphite" || got.CloseBehavior != "background" {
-		t.Fatalf("desktop settings = lang:%q theme:%q style:%q close:%q, want user-level desktop prefs", got.DesktopLanguage, got.DesktopTheme, got.DesktopThemeStyle, got.CloseBehavior)
+	wantClose := effectiveDesktopCloseBehavior("background")
+	if got.DesktopLanguage != "en" || got.DesktopTheme != "dark" || got.DesktopThemeStyle != "graphite" || got.CloseBehavior != wantClose {
+		t.Fatalf("desktop settings = lang:%q theme:%q style:%q close:%q, want user-level desktop prefs with close %q", got.DesktopLanguage, got.DesktopTheme, got.DesktopThemeStyle, got.CloseBehavior, wantClose)
 	}
 }
 

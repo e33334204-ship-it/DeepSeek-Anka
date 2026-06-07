@@ -35,7 +35,9 @@ func PrepareInputForTextOnlyModel(ctx context.Context, opts PrepareInputOptions)
 		return PrepareInputResult{Text: opts.Text}, nil
 	}
 	if opts.Bridge == nil {
-		return PrepareInputResult{}, errors.New("vision auxiliary model is required for image input with the current text-only model")
+		return PrepareInputResult{
+			Text: appendVisionFailureNotice(StripImageRefsFromText(opts.Text), errors.New("vision auxiliary model is required for image input with the current text-only model")),
+		}, nil
 	}
 
 	var resources []Resource
@@ -46,7 +48,7 @@ func PrepareInputForTextOnlyModel(ctx context.Context, opts PrepareInputOptions)
 				if opts.Warn != nil {
 					opts.Warn("vision prepare failed, proceeding without images: " + err.Error())
 				}
-				return PrepareInputResult{Text: appendVisionFailureNotice(opts.Text, err)}, nil
+				return PrepareInputResult{Text: appendVisionFailureNotice(StripImageRefsFromText(opts.Text), err)}, nil
 			}
 			return PrepareInputResult{}, err
 		}
@@ -66,12 +68,12 @@ func PrepareInputForTextOnlyModel(ctx context.Context, opts PrepareInputOptions)
 			if opts.Warn != nil {
 				opts.Warn("vision prepare failed, proceeding without images: " + err.Error())
 			}
-			return PrepareInputResult{Text: appendVisionFailureNotice(opts.Text, err)}, nil
+			return PrepareInputResult{Text: appendVisionFailureNotice(StripImageRefsFromText(opts.Text), err)}, nil
 		}
 		return PrepareInputResult{}, err
 	}
 	if len(notes) == 0 {
-		return PrepareInputResult{Text: opts.Text}, nil
+		return PrepareInputResult{Text: appendVisionFailureNotice(StripImageRefsFromText(opts.Text), errors.New("vision model returned no image description"))}, nil
 	}
 	block := FormatVisionContext(notes)
 	body := StripImageRefsFromText(opts.Text)
@@ -101,6 +103,12 @@ func appendVisionFailureNotice(text string, err error) string {
 		return notice
 	}
 	return notice + "\n\n" + text
+}
+
+// AppendFailureNoticeForText returns the user-facing fallback prompt for image
+// turns where auxiliary vision cannot provide image content.
+func AppendFailureNoticeForText(text string, err error) string {
+	return appendVisionFailureNotice(text, err)
 }
 
 func visionFailureNotice(err error) string {

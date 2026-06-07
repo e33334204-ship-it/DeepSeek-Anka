@@ -5,11 +5,14 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
 	"deepseek-anka/internal/agent"
+	"deepseek-anka/internal/capabilities"
 	"deepseek-anka/internal/checkpoint"
+	"deepseek-anka/internal/config"
 	"deepseek-anka/internal/event"
 	"deepseek-anka/internal/plugin"
 	"deepseek-anka/internal/provider"
@@ -48,6 +51,28 @@ func TestNewTreatsTypedNilSinkAsDiscard(t *testing.T) {
 	c := New(Options{Sink: sink})
 
 	c.notice("typed nil sink should not panic")
+}
+
+func TestPrepareVisionWithoutBridgeStripsImageRefs(t *testing.T) {
+	capabilities.Init(&config.Config{
+		DefaultModel: "deepseek",
+		Providers: []config.ProviderEntry{{
+			Name: "deepseek", Kind: "openai", BaseURL: "https://api.deepseek.com", Model: "deepseek-chat",
+		}},
+	}, nil, nil, nil)
+	t.Cleanup(func() { capabilities.Init(nil, nil, nil, nil) })
+
+	c := New(Options{})
+	got, paths := c.prepareVisionForInput(context.Background(), "@.deepseek-anka/attachments/a.png\n描述一下这张图片")
+	if len(paths) != 1 {
+		t.Fatalf("paths = %v, want one image path", paths)
+	}
+	if strings.Contains(got, ".deepseek-anka/attachments") {
+		t.Fatalf("prepared text leaked attachment path: %q", got)
+	}
+	if !strings.Contains(got, "描述一下这张图片") {
+		t.Fatalf("prepared text lost user request: %q", got)
+	}
 }
 
 func TestRunTurnSnapshotsActivityWhenTranscriptChanges(t *testing.T) {

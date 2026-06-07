@@ -17,10 +17,6 @@ func (c *Controller) targetModel() vision.TargetModel {
 }
 
 func (c *Controller) prepareVisionForInput(ctx context.Context, input string) (string, []string) {
-	br := capabilities.VisionBridge()
-	if br == nil || !capabilities.VisionEnabled() {
-		return input, nil
-	}
 	target := c.targetModel()
 	if !vision.RequiresAuxiliaryVision(target) {
 		return input, nil
@@ -28,6 +24,20 @@ func (c *Controller) prepareVisionForInput(ctx context.Context, input string) (s
 	paths := vision.UniqueImagePathsFromText(input)
 	if len(paths) == 0 {
 		return input, nil
+	}
+	br := capabilities.VisionBridge()
+	if br == nil || !capabilities.VisionEnabled() {
+		result, err := vision.PrepareInputForTextOnlyModel(ctx, vision.PrepareInputOptions{
+			TargetModel: target,
+			Text:        input,
+			ImagePaths:  paths,
+			Bridge:      nil,
+		})
+		if err != nil {
+			c.notice(err.Error())
+			return vision.StripImageRefsFromText(input), paths
+		}
+		return result.Text, paths
 	}
 	result, err := vision.PrepareInputForTextOnlyModel(ctx, vision.PrepareInputOptions{
 		TargetModel:   target,
@@ -40,7 +50,7 @@ func (c *Controller) prepareVisionForInput(ctx context.Context, input string) (s
 	})
 	if err != nil {
 		c.notice(err.Error())
-		return input, nil
+		return vision.AppendFailureNoticeForText(vision.StripImageRefsFromText(input), err), paths
 	}
 	return result.Text, paths
 }

@@ -104,7 +104,7 @@ func (a *App) beforeClose(ctx context.Context) bool {
 	if err != nil {
 		cfg = config.LoadForEdit(config.UserConfigPath())
 	}
-	if cfg.DesktopCloseBehavior() == "background" {
+	if shouldHideWindowOnClose(cfg.DesktopCloseBehavior()) {
 		a.saveWindowStateSync()
 		// Hide the application, not just the window, so macOS can restore it
 		// from the Dock using the normal app activation path.
@@ -117,8 +117,24 @@ func (a *App) beforeClose(ctx context.Context) bool {
 func (a *App) showMainWindow() {
 	if a.ctx != nil {
 		runtime.Show(a.ctx)
+		runtime.WindowUnminimise(a.ctx)
 		runtime.WindowShow(a.ctx)
 	}
+}
+
+func shouldHideWindowOnClose(mode string) bool {
+	return shouldHideWindowOnCloseForGOOS(mode, goruntime.GOOS)
+}
+
+func shouldHideWindowOnCloseForGOOS(mode, goos string) bool {
+	return goos == "darwin" && mode == "background"
+}
+
+func effectiveDesktopCloseBehavior(mode string) string {
+	if !shouldHideWindowOnClose(mode) {
+		return "quit"
+	}
+	return "background"
 }
 
 func (a *App) secondInstanceLaunch() {

@@ -150,7 +150,7 @@ func (a *App) Settings() SettingsView {
 			AutoPlan:          "off",
 			DesktopTheme:      "dark",
 			DesktopThemeStyle: "graphite",
-			CloseBehavior:     "background",
+			CloseBehavior:     effectiveDesktopCloseBehavior("background"),
 		}
 	}
 	ctrl := a.activeCtrl()
@@ -207,7 +207,7 @@ func (a *App) Settings() SettingsView {
 		DesktopLanguage:       cfg.DesktopLanguage(),
 		DesktopTheme:          cfg.DesktopTheme(),
 		DesktopThemeStyle:     cfg.DesktopThemeStyle(),
-		CloseBehavior:         cfg.DesktopCloseBehavior(),
+		CloseBehavior:         effectiveDesktopCloseBehavior(cfg.DesktopCloseBehavior()),
 		ConfigPath:            cfgPath,
 		ProviderKinds:         nonNil(provider.Kinds()),
 		Bypass:                ctrl != nil && ctrl.Bypass(),
@@ -545,6 +545,9 @@ func (a *App) SetNetwork(n NetworkView) error {
 // SetCloseBehavior updates desktop-only window close behavior without rebuilding
 // the active controller. It must stay out of provider-visible prompt/request data.
 func (a *App) SetCloseBehavior(mode string) error {
+	if mode == "background" && !shouldHideWindowOnClose(mode) {
+		mode = "quit"
+	}
 	return a.applyConfigOnly(func(c *config.Config) error { return c.SetDesktopCloseBehavior(mode) })
 }
 

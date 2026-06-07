@@ -650,9 +650,9 @@ func (c *Controller) RunShell(command string) {
 // turn with it prepended (or the raw line when nothing resolved).
 func (c *Controller) runRefTurn(input string) {
 	c.runGuarded(func(ctx context.Context) error {
-		prepared, _ := c.prepareVisionForInput(ctx, input)
+		prepared, imagePaths := c.prepareVisionForInput(ctx, input)
 		refInput := input
-		if prepared != input && strings.Contains(prepared, vision.ContextStart) {
+		if len(imagePaths) > 0 || (prepared != input && strings.Contains(prepared, vision.ContextStart)) {
 			refInput = vision.StripImageRefsFromText(input)
 		}
 		block, errs := c.ResolveRefs(ctx, refInput)

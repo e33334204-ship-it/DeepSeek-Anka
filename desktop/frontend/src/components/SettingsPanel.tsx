@@ -300,7 +300,7 @@ function normalizeSettingsView(view: SettingsView | null | undefined): SettingsV
 type CloseBehavior = "background" | "quit";
 
 function normalizeCloseBehavior(mode: string | undefined): CloseBehavior {
-  return mode === "quit" ? "quit" : "background";
+  return mode === "background" ? "background" : "quit";
 }
 
 function closeBehaviorLabel(mode: CloseBehavior, t: ReturnType<typeof useT>): string {
