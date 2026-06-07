@@ -41,6 +41,14 @@ func TestRenderTOMLRoundTrips(t *testing.T) {
 	orig.Skills.Paths = []string{"~/my-skills", "../shared/skills"}
 	orig.Skills.DisabledSkills = []string{"review", "explore"}
 	orig.Codegraph = CodegraphConfig{Enabled: true, AutoInstall: false, Path: "/opt/codegraph", Tier: "background"}
+	orig.Vision = VisionConfig{Enabled: true, Model: "gpt-4o"}
+	orig.Computer = ComputerConfig{Enabled: true, AllowWindowsInputInjection: true}
+	orig.Browser = BrowserConfig{Enabled: false, Headless: false, Chrome: "/usr/bin/chromium"}
+	orig.Bridge = BridgeConfig{
+		Enabled: true,
+		Addr:    "127.0.0.1:9999",
+		Feishu:  BridgeFeishuConfig{Enabled: true, AppID: "cli_x", AppSecret: "sec", Owner: "ou_y"},
+	}
 	orig.Plugins = []PluginEntry{
 		{Name: "example", Command: "reasonix-plugin-example"},
 		{Name: "stripe", Type: "http", URL: "https://mcp.stripe.com", Headers: map[string]string{"Authorization": "Bearer x"}, AutoStart: boolPtr(false), Tier: "background"},
@@ -119,6 +127,18 @@ func TestRenderTOMLRoundTrips(t *testing.T) {
 	}
 	if got.Codegraph.Tier != "background" {
 		t.Errorf("codegraph.tier = %q, want background", got.Codegraph.Tier)
+	}
+	if !got.Vision.Enabled || got.Vision.Model != "gpt-4o" {
+		t.Errorf("vision not preserved: %+v", got.Vision)
+	}
+	if !got.Computer.Enabled || !got.Computer.AllowWindowsInputInjection {
+		t.Errorf("computer not preserved: %+v", got.Computer)
+	}
+	if got.Browser.Enabled || got.Browser.Headless || got.Browser.Chrome != "/usr/bin/chromium" {
+		t.Errorf("browser not preserved: %+v", got.Browser)
+	}
+	if !got.Bridge.Enabled || got.Bridge.Addr != "127.0.0.1:9999" || !got.Bridge.Feishu.Enabled {
+		t.Errorf("bridge not preserved: %+v", got.Bridge)
 	}
 	if got.Agent.SubagentModel != "mimo-pro" {
 		t.Errorf("subagent_model = %q, want mimo-pro", got.Agent.SubagentModel)

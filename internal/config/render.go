@@ -248,6 +248,10 @@ func RenderTOMLForScope(c *Config, scope RenderScope) string {
 	}
 	b.WriteString("\n")
 
+	if scope != RenderScopeProject {
+		renderCapabilities(&b, c)
+	}
+
 	b.WriteString("[skills]\n")
 	if len(c.Skills.Paths) > 0 {
 		fmt.Fprintf(&b, "paths = %s   # extra custom skill roots\n", renderStringArray(c.Skills.Paths))
@@ -346,6 +350,133 @@ func RenderTOMLForScope(c *Config, scope RenderScope) string {
 	}
 
 	return b.String()
+}
+
+func renderCapabilities(b *strings.Builder, c *Config) {
+	b.WriteString("# Auxiliary vision: separate vision model analyzes images for text-only chat models.\n")
+	b.WriteString("[vision]\n")
+	fmt.Fprintf(b, "enabled = %v\n", c.Vision.Enabled)
+	if model := strings.TrimSpace(c.Vision.Model); model != "" {
+		fmt.Fprintf(b, "model   = %q\n", model)
+	} else {
+		b.WriteString("# model   = \"gpt-4o\"   # vision-capable [[providers]] entry; required when enabled\n")
+	}
+	b.WriteString("\n")
+
+	b.WriteString("# Desktop automation (Windows UIA / macOS screencapture).\n")
+	b.WriteString("[computer]\n")
+	fmt.Fprintf(b, "enabled = %v\n", c.Computer.Enabled)
+	if c.Computer.AllowWindowsInputInjection {
+		b.WriteString("allow_windows_input_injection = true\n")
+	} else {
+		b.WriteString("# allow_windows_input_injection = true\n")
+	}
+	b.WriteString("\n")
+
+	b.WriteString("# Built-in headless Chromium browser automation.\n")
+	b.WriteString("[browser]\n")
+	fmt.Fprintf(b, "enabled  = %v\n", c.Browser.Enabled)
+	fmt.Fprintf(b, "headless = %v\n", c.Browser.Headless)
+	if chrome := strings.TrimSpace(c.Browser.Chrome); chrome != "" {
+		fmt.Fprintf(b, "chrome   = %q\n", chrome)
+	} else {
+		b.WriteString("# chrome   = \"\"   # optional path to Chrome/Chromium\n")
+	}
+	b.WriteString("\n")
+
+	b.WriteString("# External IM bridge (Feishu / WeChat / QQ). Run: reasonix bridge\n")
+	b.WriteString("[bridge]\n")
+	fmt.Fprintf(b, "enabled = %v\n", c.Bridge.Enabled)
+	addr := strings.TrimSpace(c.Bridge.Addr)
+	if addr == "" {
+		addr = "127.0.0.1:8787"
+	}
+	fmt.Fprintf(b, "addr    = %q\n", addr)
+	b.WriteString("\n")
+
+	renderBridgeFeishu(b, c.Bridge.Feishu)
+	renderBridgeWeChat(b, c.Bridge.WeChat)
+	renderBridgeQQ(b, c.Bridge.QQ)
+}
+
+func renderBridgeFeishu(b *strings.Builder, f BridgeFeishuConfig) {
+	if !f.Enabled && strings.TrimSpace(f.AppID) == "" && strings.TrimSpace(f.AppSecret) == "" && strings.TrimSpace(f.Owner) == "" {
+		b.WriteString("# [bridge.feishu]\n")
+		b.WriteString("# enabled = true\n")
+		b.WriteString("# app_id = \"cli_...\"\n")
+		b.WriteString("# app_secret = \"...\"\n")
+		b.WriteString("# owner = \"ou_...\"\n\n")
+		return
+	}
+	b.WriteString("[bridge.feishu]\n")
+	fmt.Fprintf(b, "enabled = %v\n", f.Enabled)
+	if f.AppID != "" {
+		fmt.Fprintf(b, "app_id = %q\n", f.AppID)
+	}
+	if f.AppSecret != "" {
+		fmt.Fprintf(b, "app_secret = %q\n", f.AppSecret)
+	}
+	if f.Owner != "" {
+		fmt.Fprintf(b, "owner = %q\n", f.Owner)
+	}
+	b.WriteString("\n")
+}
+
+func renderBridgeWeChat(b *strings.Builder, w BridgeWeChatConfig) {
+	if !w.Enabled && strings.TrimSpace(w.BotToken) == "" && strings.TrimSpace(w.Owner) == "" {
+		b.WriteString("# [bridge.wechat]\n")
+		b.WriteString("# enabled = true\n")
+		b.WriteString("# bot_token = \"...\"\n")
+		b.WriteString("# owner = \"...\"\n\n")
+		return
+	}
+	b.WriteString("[bridge.wechat]\n")
+	fmt.Fprintf(b, "enabled = %v\n", w.Enabled)
+	if w.BotToken != "" {
+		fmt.Fprintf(b, "bot_token = %q\n", w.BotToken)
+	}
+	if w.Owner != "" {
+		fmt.Fprintf(b, "owner = %q\n", w.Owner)
+	}
+	b.WriteString("\n")
+}
+
+func renderBridgeQQ(b *strings.Builder, q BridgeQQConfig) {
+	if !q.Enabled && strings.TrimSpace(q.AppID) == "" && strings.TrimSpace(q.AppSecret) == "" &&
+		strings.TrimSpace(q.Owner) == "" && len(q.DMGuildMap) == 0 {
+		b.WriteString("# [bridge.qq]\n")
+		b.WriteString("# enabled = true\n")
+		b.WriteString("# app_id = \"...\"\n")
+		b.WriteString("# app_secret = \"...\"\n")
+		b.WriteString("# owner = \"...\"\n")
+		b.WriteString("# [bridge.qq.dm_guild_map]\n")
+		b.WriteString("# \"user_openid\" = \"guild_id\"\n\n")
+		return
+	}
+	b.WriteString("[bridge.qq]\n")
+	fmt.Fprintf(b, "enabled = %v\n", q.Enabled)
+	if q.AppID != "" {
+		fmt.Fprintf(b, "app_id = %q\n", q.AppID)
+	}
+	if q.AppSecret != "" {
+		fmt.Fprintf(b, "app_secret = %q\n", q.AppSecret)
+	}
+	if q.Owner != "" {
+		fmt.Fprintf(b, "owner = %q\n", q.Owner)
+	}
+	b.WriteString("\n")
+	if len(q.DMGuildMap) > 0 {
+		b.WriteString("[bridge.qq.dm_guild_map]\n")
+		keys := make([]string, 0, len(q.DMGuildMap))
+		for k := range q.DMGuildMap {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			fmt.Fprintf(b, "%q = %q\n", k, q.DMGuildMap[k])
+		}
+		b.WriteString("\n")
+	}
 }
 
 func configVersion(c *Config) int {

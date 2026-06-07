@@ -34,7 +34,7 @@ import (
 // point at the upstream Reasonix R2 CDN (v1.2.x) or users would get the wrong product.
 const (
 	manifestPrimary     = "https://github.com/e33334204-ship-it/DeepSeek-Anka/releases/latest/download/latest.json"
-	manifestFallback    = "https://github.com/e33334204-ship-it/DeepSeek-Anka/releases/download/deepseek-anka-v1.0.2/latest.json"
+	manifestFallback    = "https://github.com/e33334204-ship-it/DeepSeek-Anka/releases/download/deepseek-anka-v1.0.3/latest.json"
 	defaultDownloadPage = "https://github.com/e33334204-ship-it/DeepSeek-Anka/releases/latest"
 	httpTimeout         = 15 * time.Second
 )
