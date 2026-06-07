@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"deepseek-anka/internal/agent"
+	"deepseek-anka/internal/capabilities"
 	"deepseek-anka/internal/config"
 	"deepseek-anka/internal/control"
 	"deepseek-anka/internal/event"
@@ -334,6 +335,23 @@ func TestFileRefsUseActiveTabWorkspaceRoot(t *testing.T) {
 	preview := app.ReadFile("frontend/wailsjs/runtime/runtime.js")
 	if preview.Err != "" || preview.Body != "right workspace" {
 		t.Fatalf("ReadFile active project preview = %+v, want project file", preview)
+	}
+}
+
+func TestSubmitToTabSyncsTargetWorkspaceRoot(t *testing.T) {
+	globalRoot := t.TempDir()
+	projectRoot := t.TempDir()
+	app := NewApp()
+	app.tabs = map[string]*WorkspaceTab{
+		"global":  {ID: "global", Scope: "global", WorkspaceRoot: globalRoot},
+		"project": {ID: "project", Scope: "project", WorkspaceRoot: projectRoot},
+	}
+	app.activeTabID = "global"
+
+	app.syncWorkspaceForTab("project")
+
+	if got := capabilities.WorkspaceRoot(); got != projectRoot {
+		t.Fatalf("workspace root = %q, want project root %q", got, projectRoot)
 	}
 }
 

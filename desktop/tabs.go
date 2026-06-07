@@ -19,6 +19,7 @@ import (
 
 	"deepseek-anka/internal/agent"
 	"deepseek-anka/internal/boot"
+	"deepseek-anka/internal/capabilities"
 	"deepseek-anka/internal/config"
 	"deepseek-anka/internal/control"
 	"deepseek-anka/internal/event"
@@ -648,6 +649,21 @@ func (a *App) ctrlByTabID(tabID string) *control.Controller {
 		return nil
 	}
 	return tab.Ctrl
+}
+
+func (a *App) workspaceRootForTab(tabID string) string {
+	a.mu.RLock()
+	defer a.mu.RUnlock()
+	if tab := a.tabByIDLocked(tabID); tab != nil {
+		return tab.WorkspaceRoot
+	}
+	return ""
+}
+
+func (a *App) syncWorkspaceForTab(tabID string) {
+	root := a.workspaceRootForTab(tabID)
+	control.SetAttachmentWorkspaceRoot(root)
+	capabilities.SetWorkspaceRoot(root)
 }
 
 // activeSink returns the active tab's event sink, or nil.

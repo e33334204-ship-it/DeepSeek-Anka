@@ -294,6 +294,7 @@ func (a *App) SubmitToTab(tabID, input string) {
 		a.runEffortCommandForTab(tabID, trimmed)
 		return
 	}
+	a.syncWorkspaceForTab(tabID)
 	if ctrl := a.ctrlByTabID(tabID); ctrl != nil {
 		ctrl.Submit(input)
 	}
@@ -314,6 +315,7 @@ func (a *App) SubmitDisplay(display, input string) {
 }
 
 func (a *App) SubmitDisplayToTab(tabID, display, input string) {
+	a.syncWorkspaceForTab(tabID)
 	ctrl := a.ctrlByTabID(tabID)
 	if ctrl == nil {
 		return
@@ -2773,7 +2775,7 @@ func (a *App) currentProviderEntryForTab(tabID string) (*config.ProviderEntry, e
 // SavePastedImage stores a browser clipboard image data URL under
 // .deepseek-anka/attachments and returns the relative @-reference path.
 func (a *App) SavePastedImage(dataURL string) (string, error) {
-	control.SetAttachmentWorkspaceRoot(a.activeWorkspaceRoot())
+	a.syncWorkspaceForTab("")
 	return control.SaveImageDataURL(dataURL)
 }
 
@@ -2781,13 +2783,13 @@ func (a *App) SavePastedImage(dataURL string) (string, error) {
 // as a data URL but not a real path) under .deepseek-anka/attachments and returns the
 // relative @-reference path.
 func (a *App) SavePastedFile(name, dataURL string) (string, error) {
-	control.SetAttachmentWorkspaceRoot(a.activeWorkspaceRoot())
+	a.syncWorkspaceForTab("")
 	return control.SaveAttachmentDataURL(name, dataURL)
 }
 
 // AttachmentDataURL returns a safe data URL for a stored image attachment.
 func (a *App) AttachmentDataURL(path string) (string, error) {
-	control.SetAttachmentWorkspaceRoot(a.activeWorkspaceRoot())
+	a.syncWorkspaceForTab("")
 	return control.ImageDataURL(path)
 }
 
