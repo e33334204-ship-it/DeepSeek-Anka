@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { asArray } from "../lib/array";
 import { app } from "../lib/bridge";
 import { visionModelRefs } from "../lib/visionModels";
-import { VISION_PROVIDER_TEMPLATES } from "../lib/visionProviderTemplates";
+import { VISION_PROVIDER_TEMPLATES, visionTemplateHint, visionTemplateLabel } from "../lib/visionProviderTemplates";
 import { normalizeLangPref, useI18n, useT, type LangPref } from "../lib/i18n";
 import { useUpdater } from "../lib/useUpdater";
 import {
@@ -634,7 +634,7 @@ function ModelsSection({ s, busy, apply, onManageProviders }: SectionProps & { o
 }
 
 function VisionProviderSetup({ busy, apply }: { busy: boolean; apply: (fn: () => Promise<void>) => Promise<void> }) {
-  const t = useT();
+  const { t, locale } = useI18n();
   const [templateId, setTemplateId] = useState(VISION_PROVIDER_TEMPLATES[0]?.id ?? "");
   const [modelId, setModelId] = useState(VISION_PROVIDER_TEMPLATES[0]?.visionModel ?? "");
   const [apiKey, setApiKey] = useState("");
@@ -672,12 +672,12 @@ function VisionProviderSetup({ busy, apply }: { busy: boolean; apply: (fn: () =>
         >
           {VISION_PROVIDER_TEMPLATES.map((tpl) => (
             <option key={tpl.id} value={tpl.id}>
-              {t(tpl.labelKey)}
+              {visionTemplateLabel(tpl, locale)}
             </option>
           ))}
         </select>
       </div>
-      <p className="settings-hint">{t(template.hintKey)}</p>
+      <p className="settings-hint">{visionTemplateHint(template, locale)}</p>
       {models.length > 1 && (
         <div className="set-row">
           <label className="set-label">{t("settings.vision.model")}</label>
