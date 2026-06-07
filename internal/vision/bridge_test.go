@@ -75,6 +75,14 @@ func TestUniqueImagePathsFromText(t *testing.T) {
 	}
 }
 
+func TestStripImageRefsFromText(t *testing.T) {
+	text := "@.deepseek-anka/attachments/a.png\n描述一下这张图片\n[attached_image: /tmp/b.jpg]"
+	got := StripImageRefsFromText(text)
+	if got != "描述一下这张图片" {
+		t.Fatalf("StripImageRefsFromText = %q", got)
+	}
+}
+
 func TestFormatStructuredVisionNote(t *testing.T) {
 	note := formatStructuredVisionNote(map[string]any{
 		"image_overview":      "A login form",

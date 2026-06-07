@@ -48,7 +48,7 @@ func wireCapabilities(cfg *config.Config, reg *tool.Registry, workspaceRoot stri
 // explicitly add/remove them after the base registry is built.
 func syncCapabilityTools(reg *tool.Registry, cfg *config.Config) {
 	tools := map[string]bool{
-		"understand_image": cfg.Vision.Enabled && capabilities.VisionBridge() != nil,
+		"understand_image": false,
 		"browser":          cfg.Browser.Enabled && capabilities.BrowserManager() != nil,
 		"computer":         cfg.Computer.Enabled && capabilities.ComputerHost() != nil,
 		"screenshot":       cfg.Computer.Enabled && capabilities.ComputerHost() != nil,

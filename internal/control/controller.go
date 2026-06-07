@@ -44,6 +44,7 @@ import (
 	"deepseek-anka/internal/sandbox"
 	"deepseek-anka/internal/skill"
 	"deepseek-anka/internal/tool"
+	"deepseek-anka/internal/vision"
 )
 
 // Controller drives one chat session. Construct with New; drive with the command
@@ -649,13 +650,18 @@ func (c *Controller) RunShell(command string) {
 // turn with it prepended (or the raw line when nothing resolved).
 func (c *Controller) runRefTurn(input string) {
 	c.runGuarded(func(ctx context.Context) error {
-		block, errs := c.ResolveRefs(ctx, input)
+		prepared, _ := c.prepareVisionForInput(ctx, input)
+		refInput := input
+		if prepared != input && strings.Contains(prepared, vision.ContextStart) {
+			refInput = vision.StripImageRefsFromText(input)
+		}
+		block, errs := c.ResolveRefs(ctx, refInput)
 		for _, e := range errs {
 			c.notice(e)
 		}
-		sent := input
+		sent := prepared
 		if block != "" {
-			sent = "Referenced context:\n\n" + block + "\n\n" + input
+			sent = "Referenced context:\n\n" + block + "\n\n" + prepared
 		}
 		return c.runTurnWithRaw(ctx, sent, input)
 	})

@@ -74,7 +74,11 @@ func PrepareInputForTextOnlyModel(ctx context.Context, opts PrepareInputOptions)
 		return PrepareInputResult{Text: opts.Text}, nil
 	}
 	block := FormatVisionContext(notes)
-	return PrepareInputResult{Text: block + opts.Text}, nil
+	body := StripImageRefsFromText(opts.Text)
+	if body == "" {
+		return PrepareInputResult{Text: block}, nil
+	}
+	return PrepareInputResult{Text: block + body}, nil
 }
 
 func isRecoverableVisionPrepareError(err error) bool {

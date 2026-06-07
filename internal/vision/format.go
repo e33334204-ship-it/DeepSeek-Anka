@@ -41,6 +41,19 @@ func normalizeUserRequest(text string) string {
 	return strings.TrimSpace(s)
 }
 
+func StripImageRefsFromText(text string) string {
+	s := attachedImageRe.ReplaceAllString(text, "")
+	s = regexp.MustCompile(`@\.deepseek-anka/attachments/[^\s]+`).ReplaceAllString(s, "")
+	lines := strings.Split(s, "\n")
+	for i, line := range lines {
+		lines[i] = strings.TrimSpace(line)
+	}
+	s = strings.Join(lines, "\n")
+	s = regexp.MustCompile(`[ \t]{2,}`).ReplaceAllString(s, " ")
+	s = regexp.MustCompile(`\n{3,}`).ReplaceAllString(s, "\n\n")
+	return strings.TrimSpace(s)
+}
+
 // FormatVisionContext builds the injectable vision-context block.
 func FormatVisionContext(notes []PreparedNote) string {
 	if len(notes) == 0 {
@@ -204,13 +217,13 @@ func rawVisualPrimitiveItems(analysis map[string]any) []any {
 }
 
 type visualPrimitive struct {
-	ID          string
-	Type        string
-	Ref         string
-	Box         []int
-	Point       []int
-	Confidence  *float64
-	Grounding   string
+	ID         string
+	Type       string
+	Ref        string
+	Box        []int
+	Point      []int
+	Confidence *float64
+	Grounding  string
 }
 
 func formatVisualPrimitives(primitives []visualPrimitive, groundingMode string) string {
