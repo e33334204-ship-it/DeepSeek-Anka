@@ -1,13 +1,67 @@
-import { memo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { ChevronRight, MoreHorizontal } from "lucide-react";
 import { Markdown } from "./Markdown";
 import { CopyButton } from "./CopyButton";
 import { Tooltip } from "./Tooltip";
 import { useT } from "../lib/i18n";
+import { app } from "../lib/bridge";
 import type { Item } from "../lib/useController";
 import type { CheckpointMeta } from "../lib/types";
 
 type AssistantItem = Extract<Item, { kind: "assistant" }>;
+
+const ATTACHMENT_REF_RE = /@((?:\.deepseek-anka|\.reasonix)\/attachments\/[^\s]+)/g;
+
+function parseUserMessageText(text: string): { attachmentPaths: string[]; body: string } {
+  const attachmentPaths: string[] = [];
+  for (const match of text.matchAll(ATTACHMENT_REF_RE)) {
+    attachmentPaths.push(match[1]);
+  }
+  const body = text.replace(ATTACHMENT_REF_RE, " ").replace(/\s+/g, " ").trim();
+  return { attachmentPaths, body };
+}
+
+function UserMessageAttachments({ paths }: { paths: string[] }) {
+  const [urls, setUrls] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const next: Record<string, string> = {};
+      for (const path of paths) {
+        try {
+          next[path] = await app.AttachmentDataURL(path);
+        } catch {
+          /* attachment may have been removed */
+        }
+      }
+      if (!cancelled) setUrls(next);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [paths.join("|")]);
+
+  if (paths.length === 0) return null;
+
+  return (
+    <div className="msg__attachments">
+      {paths.map((path) => {
+        const src = urls[path];
+        const name = path.split("/").pop() || path;
+        return (
+          <div className="msg__attachment" key={path}>
+            {src ? (
+              <img className="msg__attachment-image" src={src} alt={name} loading="lazy" />
+            ) : (
+              <span className="msg__attachment-fallback">{name}</span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export function UserMessage({
   text,
@@ -120,11 +174,15 @@ export function UserMessage({
       </button>
     );
   };
-  const displayText = text.replace(/@\.deepseek-anka\/attachments\/[^\s]+/g, "[image]");
+  const { attachmentPaths, body } = useMemo(() => parseUserMessageText(text), [text]);
+  const displayText = body || (attachmentPaths.length > 0 ? "" : text);
   return (
     <div className="msg msg--user" id={anchorId} data-question-anchor={anchorId} data-turn={turn}>
       <span className="msg__caret">›</span>
-      <div className="msg__text">{displayText}</div>
+      <div className="msg__content">
+        <UserMessageAttachments paths={attachmentPaths} />
+        {displayText && <div className="msg__text">{displayText}</div>}
+      </div>
       {canRewind && (
         <div className={`rewind${open ? " rewind--open" : ""}`}>
           <Tooltip label={t("rewind.label")}>

@@ -454,6 +454,7 @@ export const en = {
   "settings.vision.apiKey": "API Key",
   "settings.vision.apiKeyPlaceholder": "Paste your API key here",
   "settings.vision.saveAndEnable": "Add provider & enable vision",
+  "settings.vision.addProviderHint": "Add another vision provider or switch API key below.",
   "settings.vision.keyRequired": "This vision provider needs an API key before it can analyze images.",
   "settings.vision.on": "Vision on",
   "settings.vision.off": "Vision off",

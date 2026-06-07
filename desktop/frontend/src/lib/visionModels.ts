@@ -20,6 +20,19 @@ const IMAGE_MODEL_MARKERS = [
   "vision",
   "-vl",
   "_vl",
+  "kimi-k2",
+  "kimi-latest",
+  "kimi-for-coding",
+  "doubao-vision",
+  "doubao-seed",
+  "grok",
+  "llama-4",
+  "internvl",
+  "step-1v",
+  "hunyuan-vision",
+  "glm-5v",
+  "mimo-v2-omni",
+  "minimax-m3",
 ] as const;
 
 const DEEPSEEK_HOST_MARKERS = ["deepseek", "api.deepseek.com"] as const;

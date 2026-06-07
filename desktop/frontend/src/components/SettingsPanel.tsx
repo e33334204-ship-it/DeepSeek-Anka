@@ -492,10 +492,12 @@ function NetworkSection({ s, busy, apply }: SectionProps) {
 function ModelsSection({ s, busy, apply, onManageProviders }: SectionProps & { onManageProviders: () => void }) {
   const t = useT();
   const refs = allRefs(s);
-  const visionRefs = (s.visionModelCandidates?.length ? s.visionModelCandidates : visionModelRefs(s.providers));
+  const baseVisionRefs = s.visionModelCandidates?.length ? s.visionModelCandidates : visionModelRefs(s.providers);
+  const visionRef = toRef(s.vision?.model || "", s);
+  const visionRefs =
+    visionRef && !baseVisionRefs.includes(visionRef) ? [...baseVisionRefs, visionRef] : baseVisionRefs;
   const defaultRef = toRef(s.defaultModel, s);
   const plannerRef = toRef(s.plannerModel, s);
-  const visionRef = toRef(s.vision?.model || "", s);
   const [defaultProvider, defaultModel] = defaultRef.split("/");
 
   return (
@@ -569,8 +571,7 @@ function ModelsSection({ s, busy, apply, onManageProviders }: SectionProps & { o
           value={visionRef}
           disabled={busy || !(s.vision?.enabled ?? false)}
           onChange={(e) => {
-            const v = e.target.value;
-            if (v) void apply(() => app.SetVision(true, v));
+            void apply(() => app.SetVision(true, e.target.value));
           }}
         >
           <option value="">{t("settings.vision.modelPlaceholder")}</option>
@@ -589,6 +590,9 @@ function ModelsSection({ s, busy, apply, onManageProviders }: SectionProps & { o
       )}
       {visionRefs.length === 0 && s.vision?.enabled && (
         <VisionProviderSetup busy={busy} apply={apply} />
+      )}
+      {visionRefs.length > 0 && s.vision?.enabled && (
+        <VisionProviderSetup busy={busy} apply={apply} compact />
       )}
       {visionRefs.length === 0 && !s.vision?.enabled && (
         <p className="settings-hint">{t("settings.vision.setupWhenEnabled")}</p>
@@ -633,7 +637,15 @@ function ModelsSection({ s, busy, apply, onManageProviders }: SectionProps & { o
   );
 }
 
-function VisionProviderSetup({ busy, apply }: { busy: boolean; apply: (fn: () => Promise<void>) => Promise<void> }) {
+function VisionProviderSetup({
+  busy,
+  apply,
+  compact = false,
+}: {
+  busy: boolean;
+  apply: (fn: () => Promise<void>) => Promise<void>;
+  compact?: boolean;
+}) {
   const { t, locale } = useI18n();
   const [templateId, setTemplateId] = useState(VISION_PROVIDER_TEMPLATES[0]?.id ?? "");
   const [modelId, setModelId] = useState(VISION_PROVIDER_TEMPLATES[0]?.visionModel ?? "");
@@ -660,8 +672,13 @@ function VisionProviderSetup({ busy, apply }: { busy: boolean; apply: (fn: () =>
   };
 
   return (
-    <div className="vision-setup-card">
-      <p className="settings-hint settings-hint--warn">{t("settings.vision.noImageModels")}</p>
+    <div className={`vision-setup-card${compact ? " vision-setup-card--compact" : ""}`}>
+      {!compact && (
+        <p className="settings-hint settings-hint--warn">{t("settings.vision.noImageModels")}</p>
+      )}
+      {compact && (
+        <p className="settings-hint">{t("settings.vision.addProviderHint")}</p>
+      )}
       <div className="set-row">
         <label className="set-label">{t("settings.vision.template")}</label>
         <select

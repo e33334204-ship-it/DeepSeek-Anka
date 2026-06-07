@@ -113,8 +113,12 @@ func modelLikelySupportsImage(name string) bool {
 		"gpt-4o", "gpt-4-turbo", "gpt-4.1", "gpt-4.5",
 		"claude-3", "claude-sonnet-4", "claude-opus-4",
 		"gemini", "qwen-vl", "qwen2-vl", "qwen3-vl",
-		"pixtral", "llava", "glm-4v", "yi-vision",
+		"pixtral", "llava", "glm-4v", "glm-5v", "yi-vision",
 		"gpt-4-vision", "vision", "-vl", "_vl",
+		"kimi-k2", "kimi-latest", "kimi-for-coding",
+		"doubao-vision", "doubao-seed", "grok",
+		"llama-4", "internvl", "step-1v", "hunyuan-vision",
+		"mimo-v2-omni", "minimax-m3",
 	}
 	for _, m := range markers {
 		if strings.Contains(n, m) {

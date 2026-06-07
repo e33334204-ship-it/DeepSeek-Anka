@@ -455,6 +455,7 @@ export const zh: Record<DictKey, string> = {
   "settings.vision.apiKey": "API Key",
   "settings.vision.apiKeyPlaceholder": "在此粘贴 API Key",
   "settings.vision.saveAndEnable": "添加服务商并启用视觉",
+  "settings.vision.addProviderHint": "可在此添加其他视觉服务商，或更换 API Key。",
   "settings.vision.keyRequired": "该视觉模型服务商尚未填写 API Key，填写后才能分析图片。",
   "settings.vision.on": "视觉已开",
   "settings.vision.off": "视觉未开",
