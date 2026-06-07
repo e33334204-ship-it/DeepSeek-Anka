@@ -3,6 +3,7 @@ import type { CSSProperties, ClipboardEvent, DragEvent, KeyboardEvent, PointerEv
 import { AlertTriangle, ArrowUp, Check, ChevronDown, Eye, FileText, Folder, FolderGit2, FolderPlus, List, Search, Square, Trash2, X, Zap } from "lucide-react";
 import { asArray } from "../lib/array";
 import { app, onFilesDropped } from "../lib/bridge";
+import { evaluateChatImageSendPreflight } from "../lib/chatImageSendPreflight";
 import { SPINNER_WORDS, useI18n } from "../lib/i18n";
 import { clearLayoutSize, loadOptionalLayoutSize, saveLayoutSize } from "../lib/layoutPreferences";
 import type { CommandInfo, ComposerInsertRequest, DirEntry, EffortInfo, Mode, SlashArgItem, SlashArgsResult, WorkspaceView } from "../lib/types";
@@ -126,6 +127,8 @@ export function Composer({
   tabId,
   effort,
   onSend,
+  onNotice,
+  onOpenVisionSettings,
   onCancel,
   onCycleMode,
   onSetMode,
@@ -149,6 +152,8 @@ export function Composer({
   tabId?: string;
   effort?: EffortInfo;
   onSend: (displayText: string, submitText?: string) => void;
+  onNotice?: (text: string, level?: "info" | "warn") => void;
+  onOpenVisionSettings?: () => void;
   // Returns the un-sent text when cancelling before the server replied (so it can
   // be restored to the input); undefined for a normal cancel.
   onCancel: () => string | undefined;
@@ -188,6 +193,8 @@ export function Composer({
   const [workspaces, setWorkspaces] = useState<WorkspaceView[]>([]);
   const [composerHeight, setComposerHeight] = useState<number | null>(loadComposerHeight);
   const [composerResizing, setComposerResizing] = useState(false);
+  const [imageSendBlocked, setImageSendBlocked] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const composerCardRef = useRef<HTMLDivElement>(null);
   const workspaceAnchorRef = useRef<HTMLDivElement>(null);
@@ -205,6 +212,12 @@ export function Composer({
     }
     wasRunning.current = running;
   }, [running, text]);
+
+  useEffect(() => {
+    if (attachments.length === 0 && workspaceRefs.length === 0) {
+      setImageSendBlocked(false);
+    }
+  }, [attachments.length, workspaceRefs.length]);
 
   // --- slash commands (whole-input "/token") ---
   const [commands, setCommands] = useState<CommandInfo[]>([]);
@@ -430,20 +443,39 @@ export function Composer({
     return expanded;
   };
 
-  const submit = () => {
-    if (disabled) return;
-    const t = text.trim();
-    if ((!t && attachments.length === 0 && workspaceRefs.length === 0) || pendingPaste > 0) return;
-    const refs = [
-      ...workspaceRefs.map((ref) => formatWorkspaceReference(ref.path, ref.isDir)),
-      ...attachments.map((a) => `@${a.path}`),
-    ].join(" ");
-    const displayText = [t, refs].filter(Boolean).join(t && refs ? " " : "");
-    const submitText = [expandPastedBlocks(t), refs].filter(Boolean).join(t && refs ? " " : "");
-    onSend(displayText, submitText);
-    setText("");
-    setAttachments([]);
-    setWorkspaceRefs([]);
+  const submit = async () => {
+    if (disabled || submitting) return;
+    const trimmed = text.trim();
+    if ((!trimmed && attachments.length === 0 && workspaceRefs.length === 0) || pendingPaste > 0) return;
+
+    setSubmitting(true);
+    try {
+      const settings = await app.Settings().catch(() => null);
+      const preflight = evaluateChatImageSendPreflight({
+        attachments,
+        workspaceRefs,
+        settings,
+      });
+      if (!preflight.ok) {
+        setImageSendBlocked(true);
+        onNotice?.(t("composer.textModelImageBlocked"), "warn");
+        return;
+      }
+
+      const refs = [
+        ...workspaceRefs.map((ref) => formatWorkspaceReference(ref.path, ref.isDir)),
+        ...attachments.map((a) => `@${a.path}`),
+      ].join(" ");
+      const displayText = [trimmed, refs].filter(Boolean).join(trimmed && refs ? " " : "");
+      const submitText = [expandPastedBlocks(trimmed), refs].filter(Boolean).join(trimmed && refs ? " " : "");
+      setImageSendBlocked(false);
+      onSend(displayText, submitText);
+      setText("");
+      setAttachments([]);
+      setWorkspaceRefs([]);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const readFileAsDataURL = (file: File) =>
@@ -758,7 +790,7 @@ export function Composer({
     // Enter sends; Shift+Enter newline. `composing` guards IME confirms.
     if (e.key === "Enter" && !e.shiftKey && !composing) {
       e.preventDefault();
-      submit();
+      void submit();
     }
     // Esc interrupts the in-flight turn (matches the Stop button's hint), and
     // restores the text if the server hadn't replied yet.
@@ -894,6 +926,25 @@ export function Composer({
           </div>
         )}
       </div>
+      {imageSendBlocked && (
+        <div className="composer-blocked notice notice--warn" role="alert">
+          <AlertTriangle size={15} aria-hidden="true" />
+          <span>{t("composer.textModelImageBlocked")}</span>
+          {onOpenVisionSettings && (
+            <button type="button" className="composer-blocked__action" onClick={onOpenVisionSettings}>
+              {t("composer.openVisionSettings")}
+            </button>
+          )}
+          <button
+            type="button"
+            className="composer-blocked__dismiss"
+            aria-label={t("common.close")}
+            onClick={() => setImageSendBlocked(false)}
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
       {(attachments.length > 0 || workspaceRefs.length > 0) && (
         <div className="composer-context" aria-label={t("composer.contextItems")}>
           {attachments.map((a) => (
@@ -1014,8 +1065,8 @@ export function Composer({
             <Tooltip label={t("composer.send")}>
               <button
                 className="composer__btn composer__btn--send"
-                onClick={submit}
-                disabled={pendingPaste > 0 || (!text.trim() && attachments.length === 0 && workspaceRefs.length === 0) || disabled}
+                onClick={() => void submit()}
+                disabled={submitting || pendingPaste > 0 || (!text.trim() && attachments.length === 0 && workspaceRefs.length === 0) || disabled}
               >
                 <ArrowUp size={16} />
               </button>

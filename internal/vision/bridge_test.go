@@ -30,6 +30,43 @@ func TestModelSupportsDirectImageGPT4o(t *testing.T) {
 	}
 }
 
+func TestMoonshotKimiCanBeAuxiliaryVisionModel(t *testing.T) {
+	tests := []struct {
+		name    string
+		baseURL string
+		model   string
+	}{
+		{name: "moonshot", baseURL: "https://api.moonshot.cn/v1", model: "kimi-k2.6"},
+		{name: "kimi coding", baseURL: "https://api.kimi.com/coding/v1", model: "kimi-for-coding"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			entry := &config.ProviderEntry{
+				Name: tt.name, Kind: "openai", BaseURL: tt.baseURL, Model: tt.model,
+			}
+			if ModelSupportsDirectImageInput(entry, tt.model) {
+				t.Fatal("Moonshot/Kimi chat endpoints should still route image input through auxiliary vision")
+			}
+			if !RequiresAuxiliaryVision(TargetModel{Ref: ModelRef{ID: tt.model, Provider: tt.name}, Entry: entry}) {
+				t.Fatal("Moonshot/Kimi target chat model should require auxiliary vision")
+			}
+			if !ModelSupportsImage(entry, tt.model) {
+				t.Fatal("Moonshot/Kimi vision-capable models should be accepted as auxiliary vision models")
+			}
+		})
+	}
+}
+
+func TestOfficialDeepSeekCannotBeAuxiliaryVisionModel(t *testing.T) {
+	entry := &config.ProviderEntry{
+		Name: "deepseek", Kind: "openai",
+		BaseURL: "https://api.deepseek.com", Model: "deepseek-chat",
+	}
+	if ModelSupportsImage(entry, "deepseek-chat") {
+		t.Fatal("official DeepSeek endpoint must not be accepted as auxiliary vision")
+	}
+}
+
 func TestUniqueImagePathsFromText(t *testing.T) {
 	text := "see @.deepseek-anka/attachments/a.png and [attached_image: /tmp/b.jpg]"
 	paths := UniqueImagePathsFromText(text)
@@ -40,14 +77,14 @@ func TestUniqueImagePathsFromText(t *testing.T) {
 
 func TestFormatStructuredVisionNote(t *testing.T) {
 	note := formatStructuredVisionNote(map[string]any{
-		"image_overview":       "A login form",
-		"visible_text":         []any{"Sign in"},
-		"objects_and_layout":   "button bottom-right",
-		"charts_or_data":       "none",
-		"user_request":         "find submit",
-		"user_request_answer":  "bottom-right blue button",
-		"evidence":             "visible label Submit",
-		"uncertainty":          "none",
+		"image_overview":      "A login form",
+		"visible_text":        []any{"Sign in"},
+		"objects_and_layout":  "button bottom-right",
+		"charts_or_data":      "none",
+		"user_request":        "find submit",
+		"user_request_answer": "bottom-right blue button",
+		"evidence":            "visible label Submit",
+		"uncertainty":         "none",
 	}, nil)
 	if note == "" || !contains(note, "image_overview:") {
 		t.Fatalf("unexpected note: %q", note)

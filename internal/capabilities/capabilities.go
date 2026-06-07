@@ -4,6 +4,7 @@ package capabilities
 
 import (
 	"sync"
+	"strings"
 
 	"deepseek-anka/internal/browser"
 	"deepseek-anka/internal/computer"
@@ -18,7 +19,15 @@ var (
 	visionBr *vision.Bridge
 	browserM *browser.Manager
 	computerH *computer.Host
+	workspaceRoot string
 )
+
+// WorkspaceRoot returns the active tab workspace used for attachment resolution.
+func WorkspaceRoot() string {
+	mu.RLock()
+	defer mu.RUnlock()
+	return workspaceRoot
+}
 
 // Init wires capability services from the loaded config. Safe to call once per boot.
 func Init(c *config.Config, visionBridge *vision.Bridge, browserMgr *browser.Manager, computerHost *computer.Host) {
@@ -28,6 +37,13 @@ func Init(c *config.Config, visionBridge *vision.Bridge, browserMgr *browser.Man
 	visionBr = visionBridge
 	browserM = browserMgr
 	computerH = computerHost
+}
+
+// SetWorkspaceRoot updates the workspace root for attachment/vision path resolution.
+func SetWorkspaceRoot(root string) {
+	mu.Lock()
+	defer mu.Unlock()
+	workspaceRoot = strings.TrimSpace(root)
 }
 
 // Config returns the active config snapshot.

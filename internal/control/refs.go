@@ -83,7 +83,15 @@ func (c *Controller) detectRefs(line string) []ref {
 			known[n] = true
 		}
 	}
-	exists := func(p string) bool { _, err := os.Stat(p); return err == nil }
+	exists := func(p string) bool {
+		if abs, err := vision.ResolveAttachmentPath(c.cpRoot, p); err == nil {
+			if _, err := os.Stat(abs); err == nil {
+				return true
+			}
+		}
+		_, err := os.Stat(p)
+		return err == nil
+	}
 
 	var refs []ref
 	for _, tok := range parseRefTokens(line) {

@@ -9,13 +9,13 @@ import (
 
 // VisionCapabilities describes coordinate grounding for structured vision analysis.
 type VisionCapabilities struct {
-	Grounding        bool
-	Boxes            bool
-	Points           bool
-	CoordinateSpace  string
-	BoxOrder         string
-	OutputFormat     string
-	GroundingMode    string
+	Grounding       bool
+	Boxes           bool
+	Points          bool
+	CoordinateSpace string
+	BoxOrder        string
+	OutputFormat    string
+	GroundingMode   string
 }
 
 // InferModelInput approximates openhanako model.input for Reasonix provider entries.
@@ -45,10 +45,10 @@ func RequiresAuxiliaryVision(target TargetModel) bool {
 
 // ModelSupportsDirectImageInput mirrors shared/model-capabilities.js.
 func ModelSupportsDirectImageInput(entry *config.ProviderEntry, modelID string) bool {
-	if !containsInput(InferModelInput(entry, modelID), "image") {
+	if isOfficialDeepSeekEndpoint(entry) || isMoonshotOrKimiEndpoint(entry) {
 		return false
 	}
-	if isOfficialDeepSeekEndpoint(entry) {
+	if !containsInput(InferModelInput(entry, modelID), "image") {
 		return false
 	}
 	return true
@@ -56,8 +56,10 @@ func ModelSupportsDirectImageInput(entry *config.ProviderEntry, modelID string) 
 
 // ModelSupportsImage reports whether a model can be used as the auxiliary vision model.
 func ModelSupportsImage(entry *config.ProviderEntry, modelID string) bool {
-	return containsInput(InferModelInput(entry, modelID), "image") &&
-		ModelSupportsDirectImageInput(entry, modelID)
+	if isOfficialDeepSeekEndpoint(entry) {
+		return false
+	}
+	return containsInput(InferModelInput(entry, modelID), "image")
 }
 
 // GetVisionCapabilities resolves grounding metadata for structured primitive output.
@@ -137,6 +139,19 @@ func isOfficialDeepSeekEndpoint(entry *config.ProviderEntry) bool {
 	}
 	host := baseHost(entry.BaseURL)
 	return host == "api.deepseek.com"
+}
+
+// isMoonshotOrKimiEndpoint reports Moonshot platform / Kimi Coding hosts where
+// chat models are text-only and images must go through auxiliary vision (openhanako).
+func isMoonshotOrKimiEndpoint(entry *config.ProviderEntry) bool {
+	if entry == nil {
+		return false
+	}
+	host := baseHost(entry.BaseURL)
+	if host == "api.moonshot.cn" || host == "api.moonshot.ai" {
+		return true
+	}
+	return strings.Contains(host, "kimi.com")
 }
 
 func baseHost(raw string) string {

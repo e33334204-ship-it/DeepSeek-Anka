@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // ImageInput is a normalized image block for vision analysis.
@@ -46,9 +47,11 @@ func NormalizeModelImageInput(img ImageInput, index int) (ImageInput, error) {
 	return ImageInput{Data: img.Data, MimeType: mime, Index: index}, nil
 }
 
-// LoadImageResource reads a local image file into a Resource.
-func LoadImageResource(key, path string) (Resource, error) {
-	abs, err := filepath.Abs(path)
+// LoadImageResource reads a local image file into a Resource. When workspaceRoot
+// is set, repo-relative attachment paths (.deepseek-anka/attachments/...) resolve
+// against it instead of the process cwd (desktop global tabs use a different root).
+func LoadImageResource(workspaceRoot, key, path string) (Resource, error) {
+	abs, err := resolveImagePath(workspaceRoot, path)
 	if err != nil {
 		return Resource{}, err
 	}
@@ -76,6 +79,32 @@ func LoadImageResource(key, path string) (Resource, error) {
 		Label: filepath.Base(abs),
 		Image: ImageInput{Data: raw, MimeType: mime},
 	}, nil
+}
+
+// ResolveAttachmentPath resolves a repo-relative attachment path against workspaceRoot,
+// falling back to the process cwd (openhanako uses absolute paths; Anka attachments
+// live under .deepseek-anka/attachments relative to the tab workspace).
+func ResolveAttachmentPath(workspaceRoot, path string) (string, error) {
+	path = strings.TrimSpace(path)
+	if path == "" {
+		return "", fmt.Errorf("image path is empty")
+	}
+	slash := filepath.ToSlash(path)
+	if strings.HasPrefix(slash, ".deepseek-anka/attachments/") || strings.HasPrefix(slash, ".reasonix/attachments/") {
+		root := strings.TrimSpace(workspaceRoot)
+		if root != "" {
+			candidate := filepath.Join(root, filepath.FromSlash(slash))
+			if _, err := os.Stat(candidate); err == nil {
+				return candidate, nil
+			}
+		}
+		return filepath.Abs(path)
+	}
+	return filepath.Abs(path)
+}
+
+func resolveImagePath(workspaceRoot, path string) (string, error) {
+	return ResolveAttachmentPath(workspaceRoot, path)
 }
 
 func detectMIME(raw []byte, path string) string {

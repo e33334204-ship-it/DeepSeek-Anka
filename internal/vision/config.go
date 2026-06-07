@@ -29,6 +29,6 @@ func ResolveVisionConfig(cfg *config.Config) (*ResolvedConfig, error) {
 		ModelID:  modelID,
 		API:      api,
 		APIKey:   entry.APIKey(),
-		BaseURL:  entry.BaseURL,
+		BaseURL:  normalizeOpenAICompatBaseURL(entry.BaseURL),
 	}, nil
 }

@@ -34,7 +34,7 @@ import (
 // point at the upstream Reasonix R2 CDN (v1.2.x) or users would get the wrong product.
 const (
 	manifestPrimary     = "https://github.com/e33334204-ship-it/DeepSeek-Anka/releases/latest/download/latest.json"
-	manifestFallback    = "https://github.com/e33334204-ship-it/DeepSeek-Anka/releases/download/deepseek-anka-v1.0.5/latest.json"
+	manifestFallback    = "https://github.com/e33334204-ship-it/DeepSeek-Anka/releases/download/deepseek-anka-v1.0.12/latest.json"
 	defaultDownloadPage = "https://github.com/e33334204-ship-it/DeepSeek-Anka/releases/latest"
 	httpTimeout         = 15 * time.Second
 )
@@ -246,23 +246,10 @@ func applyLinux(targz []byte) error {
 	return selfupdate.Apply(bytes.NewReader(bin), selfupdate.Options{})
 }
 
-// applyWindows writes the downloaded NSIS installer to a temp file and launches it.
-// The per-user installer needs no admin rights and its finish page relaunches the
-// app; the caller then exits so the installer can replace the running exe.
-func applyWindows(installer []byte) error {
-	f, err := os.CreateTemp("", "reasonix-update-*.exe")
-	if err != nil {
-		return err
-	}
-	name := f.Name()
-	if _, err := f.Write(installer); err != nil {
-		f.Close()
-		return err
-	}
-	if err := f.Close(); err != nil {
-		return err
-	}
-	return exec.Command(name).Start()
+// applyWindows replaces the running portable exe in place (GitHub releases ship
+// DeepSeek-Anka-vX.Y.Z.exe, not an NSIS installer). The caller relaunches afterwards.
+func applyWindows(exe []byte) error {
+	return selfupdate.Apply(bytes.NewReader(exe), selfupdate.Options{})
 }
 
 // relaunch starts a fresh copy of the (just-replaced) executable.

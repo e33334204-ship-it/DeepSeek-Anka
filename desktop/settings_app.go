@@ -269,17 +269,21 @@ func (a *App) loadDesktopUserConfigForEdit() (*config.Config, string, error) {
 	if userPath == "" {
 		return nil, "", fmt.Errorf("cannot resolve user config directory")
 	}
+	var cfg *config.Config
 	if _, err := os.Stat(userPath); err == nil {
-		return config.LoadForEdit(userPath), userPath, nil
+		cfg = config.LoadForEdit(userPath)
+	} else {
+		cfg = config.LoadForEdit(userPath)
+		legacyPath := config.SourcePathForRoot(a.activeWorkspaceRoot())
+		if legacyPath != "" && !sameConfigPath(legacyPath, userPath) {
+			cfg = config.LoadForEdit(legacyPath)
+			cfg.ConfigVersion = config.Default().ConfigVersion
+		}
 	}
-	cfg := config.LoadForEdit(userPath)
-	legacyPath := config.SourcePathForRoot(a.activeWorkspaceRoot())
-	if legacyPath == "" || sameConfigPath(legacyPath, userPath) {
-		return cfg, userPath, nil
+	if repairCorruptedProviderKeys(cfg) {
+		_ = cfg.SaveTo(userPath)
 	}
-	legacyCfg := config.LoadForEdit(legacyPath)
-	legacyCfg.ConfigVersion = config.Default().ConfigVersion
-	return legacyCfg, userPath, nil
+	return cfg, userPath, nil
 }
 
 func (a *App) activeWorkspaceRoot() string {
@@ -454,6 +458,9 @@ func desktopAutoPlanMode(mode string) string {
 // SaveProvider adds or updates a provider. A single model fills `model`; several
 // fill `models` (with `default`). The shared key/endpoint live on the entry.
 func (a *App) SaveProvider(p ProviderView) error {
+	if err := validateProviderAPIKeyEnv(p.APIKeyEnv); err != nil {
+		return err
+	}
 	return a.applyConfigChange(func(c *config.Config) error {
 		e := config.ProviderEntry{
 			Name: p.Name, Kind: p.Kind, BaseURL: p.BaseURL,
@@ -629,6 +636,9 @@ func (a *App) SetupVisionProvider(p ProviderView, visionModelRef string, apiKey 
 	if strings.TrimSpace(p.APIKeyEnv) == "" {
 		return fmt.Errorf("provider api_key_env is required")
 	}
+	if err := validateProviderAPIKeyEnv(p.APIKeyEnv); err != nil {
+		return err
+	}
 	if err := upsertDotEnv(p.APIKeyEnv, key); err != nil {
 		return err
 	}
@@ -758,4 +768,54 @@ func trimList(in []string) []string {
 		}
 	}
 	return out
+}
+
+func validateProviderAPIKeyEnv(env string) error {
+	env = strings.TrimSpace(env)
+	if env == "" {
+		return fmt.Errorf("provider api_key_env is required")
+	}
+	if config.APIKeyEnvLooksLikeSecret(env) {
+		return fmt.Errorf("api_key_env must be an environment variable name (e.g. MOONSHOT_API_KEY), not the API key itself")
+	}
+	if !config.ValidAPIKeyEnvName(env) {
+		return fmt.Errorf("api_key_env %q is not a valid environment variable name", env)
+	}
+	return nil
+}
+
+// repairCorruptedProviderKeys moves secrets mistakenly stored in api_key_env into
+// the credentials file under the proper env var name.
+func repairCorruptedProviderKeys(cfg *config.Config) bool {
+	if cfg == nil {
+		return false
+	}
+	changed := false
+	for i := range cfg.Providers {
+		p := &cfg.Providers[i]
+		if !config.APIKeyEnvLooksLikeSecret(p.APIKeyEnv) {
+			continue
+		}
+		secret := strings.TrimSpace(p.APIKeyEnv)
+		env := config.DefaultAPIKeyEnvForProvider(p.Name)
+		if err := upsertDotEnv(env, secret); err != nil {
+			continue
+		}
+		p.APIKeyEnv = env
+		changed = true
+	}
+	return changed
+}
+
+func repairUserConfigOnStartup() {
+	cleanInvalidCredentialKeys()
+	path := config.UserConfigPath()
+	if path == "" {
+		return
+	}
+	cfg := config.LoadForEdit(path)
+	if !repairCorruptedProviderKeys(cfg) {
+		return
+	}
+	_ = cfg.SaveTo(path)
 }

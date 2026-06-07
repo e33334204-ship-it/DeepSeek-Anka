@@ -75,3 +75,20 @@ export function parseModelRef(raw: string): { id: string; provider: string } | n
   }
   return { id: s, provider: "" };
 }
+
+/** Human-friendly label for the vision model picker (openhanako-style). */
+export function formatVisionModelLabel(ref: string): string {
+  const parsed = parseModelRef(ref);
+  if (!parsed) return ref;
+  const id = parsed.id;
+  if (/^kimi-k2/i.test(id)) {
+    const ver = id.replace(/^kimi-k2\.?/i, "").replace(/^kimi-/i, "");
+    return ver ? `Kimi K2.${ver}` : "Kimi K2";
+  }
+  if (id === "kimi-latest") return "Kimi Latest";
+  if (id === "kimi-for-coding") return "Kimi for Coding";
+  if (/^gpt-4o/i.test(id)) return id.toUpperCase().replace("GPT-4O", "GPT-4o");
+  if (/^qwen-vl/i.test(id)) return id.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  if (/^moonshot-v1.*vision/i.test(id)) return "Moonshot Vision";
+  return id.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}

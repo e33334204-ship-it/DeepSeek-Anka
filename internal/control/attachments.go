@@ -24,7 +24,48 @@ const maxAttachmentCreateAttempts = 1000
 
 var attachmentPathSeq atomic.Uint64
 var attachmentNow = time.Now
+var attachmentWorkspaceRoot atomic.Value // string; desktop tab workspace for pasted images
 var safeAttachmentExt = regexp.MustCompile(`^\.[a-z0-9]{1,12}$`)
+
+// SetAttachmentWorkspaceRoot pins attachment I/O to a tab workspace (desktop global/project tabs).
+// Relative @refs stay repo-relative; files are stored under workspace/.deepseek-anka/attachments.
+func SetAttachmentWorkspaceRoot(root string) {
+	root = strings.TrimSpace(root)
+	if root == "" || root == "." {
+		attachmentWorkspaceRoot.Store("")
+		return
+	}
+	abs, err := filepath.Abs(root)
+	if err != nil {
+		attachmentWorkspaceRoot.Store("")
+		return
+	}
+	attachmentWorkspaceRoot.Store(abs)
+}
+
+func currentAttachmentWorkspaceRoot() string {
+	v, _ := attachmentWorkspaceRoot.Load().(string)
+	return v
+}
+
+func attachmentRootAbs() string {
+	rel := filepath.FromSlash(attachmentRootDir)
+	if ws := currentAttachmentWorkspaceRoot(); ws != "" {
+		return filepath.Join(ws, rel)
+	}
+	return rel
+}
+
+func attachmentAbsPath(rel string) string {
+	if ws := currentAttachmentWorkspaceRoot(); ws != "" {
+		return filepath.Join(ws, filepath.FromSlash(rel))
+	}
+	return filepath.FromSlash(rel)
+}
+
+func removeAttachmentRel(rel string) {
+	_ = os.Remove(attachmentAbsPath(rel))
+}
 
 // SaveAttachmentDataURL stores a non-image file (dropped/pasted in the desktop
 // app, where the browser exposes bytes but not a real path) under
@@ -56,11 +97,11 @@ func SaveAttachmentDataURL(origName, dataURL string) (string, error) {
 	}
 	if _, err := f.Write(raw); err != nil {
 		_ = f.Close()
-		_ = os.Remove(rel)
+		removeAttachmentRel(rel)
 		return "", err
 	}
 	if err := f.Close(); err != nil {
-		_ = os.Remove(rel)
+		removeAttachmentRel(rel)
 		return "", err
 	}
 	return filepath.ToSlash(rel), nil
@@ -105,15 +146,15 @@ func SaveImageBytes(declaredMime string, raw []byte) (string, error) {
 	}
 	if n, err := f.Write(raw); err != nil {
 		_ = f.Close()
-		_ = os.Remove(rel)
+		removeAttachmentRel(rel)
 		return "", err
 	} else if n != len(raw) {
 		_ = f.Close()
-		_ = os.Remove(rel)
+		removeAttachmentRel(rel)
 		return "", io.ErrShortWrite
 	}
 	if err := f.Close(); err != nil {
-		_ = os.Remove(rel)
+		removeAttachmentRel(rel)
 		return "", err
 	}
 	return filepath.ToSlash(rel), nil
@@ -205,11 +246,11 @@ func SaveAttachmentFile(path string) (string, error) {
 	}
 	if _, err := dst.Write(raw); err != nil {
 		_ = dst.Close()
-		_ = os.Remove(rel)
+		removeAttachmentRel(rel)
 		return "", err
 	}
 	if err := dst.Close(); err != nil {
-		_ = os.Remove(rel)
+		removeAttachmentRel(rel)
 		return "", err
 	}
 	return filepath.ToSlash(rel), nil
@@ -272,7 +313,8 @@ func ImageDataURL(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	info, err := os.Lstat(clean)
+	abs := attachmentAbsPath(clean)
+	info, err := os.Lstat(abs)
 	if err != nil {
 		return "", err
 	}
@@ -282,7 +324,7 @@ func ImageDataURL(path string) (string, error) {
 	if info.IsDir() || info.Size() <= 0 || info.Size() > maxImageAttachmentBytes {
 		return "", fmt.Errorf("attachment image must be between 1 byte and 10 MB")
 	}
-	f, err := os.Open(clean)
+	f, err := os.Open(abs)
 	if err != nil {
 		return "", err
 	}
@@ -337,14 +379,15 @@ func cleanAttachmentPath(path string) (string, error) {
 }
 
 func rejectSymlinkComponents(path, root string) error {
-	rel, err := filepath.Rel(root, path)
+	absRoot := attachmentRootAbs()
+	rel, err := filepath.Rel(absRoot, attachmentAbsPath(path))
 	if err != nil {
 		return err
 	}
 	if rel == "." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) || rel == ".." {
 		return fmt.Errorf("attachment path is outside .deepseek-anka/attachments")
 	}
-	cur := root
+	cur := absRoot
 	for _, part := range strings.Split(rel, string(filepath.Separator)) {
 		if part == "" || part == "." {
 			continue
@@ -362,7 +405,7 @@ func rejectSymlinkComponents(path, root string) error {
 }
 
 func ensureAttachmentRoot() error {
-	root := filepath.FromSlash(attachmentRootDir)
+	root := attachmentRootAbs()
 	if info, err := os.Lstat(root); err == nil {
 		if info.Mode()&os.ModeSymlink != 0 {
 			return fmt.Errorf("attachment directory must not be a symlink")
@@ -405,14 +448,10 @@ func saveDarwinClipboardClass(class string) (string, error) {
 		return "", err
 	}
 	if err := f.Close(); err != nil {
-		_ = os.Remove(rel)
+		removeAttachmentRel(rel)
 		return "", err
 	}
-	abs, err := filepath.Abs(rel)
-	if err != nil {
-		_ = os.Remove(rel)
-		return "", err
-	}
+	abs := attachmentAbsPath(rel)
 	script := fmt.Sprintf(`
 set outPath to POSIX file %q
 try
@@ -433,11 +472,11 @@ on error errMsg
 end try
 `, abs, class)
 	if out, err := exec.Command("osascript", "-e", script).CombinedOutput(); err != nil {
-		_ = os.Remove(rel)
+		removeAttachmentRel(rel)
 		return "", fmt.Errorf("read clipboard image: %s", strings.TrimSpace(string(out)))
 	}
-	raw, err := os.ReadFile(rel)
-	_ = os.Remove(rel)
+	raw, err := os.ReadFile(abs)
+	removeAttachmentRel(rel)
 	if err != nil {
 		return "", err
 	}
@@ -447,7 +486,8 @@ end try
 func createAttachmentFile(ext string) (string, *os.File, error) {
 	for range maxAttachmentCreateAttempts {
 		rel := attachmentPath(ext)
-		f, err := os.OpenFile(rel, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
+		abs := attachmentAbsPath(rel)
+		f, err := os.OpenFile(abs, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
 		if os.IsExist(err) {
 			continue
 		}

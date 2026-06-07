@@ -86,6 +86,45 @@ func upsertEnvFile(path, key, value string) error {
 	return os.Setenv(key, value)
 }
 
+// cleanInvalidCredentialKeys removes credential entries whose key name is not a
+// valid environment variable (e.g. when api_key_env was mistakenly set to sk-...).
+func cleanInvalidCredentialKeys() {
+	path := credentialsPath()
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return
+	}
+	var kept []string
+	changed := false
+	for _, raw := range strings.Split(string(data), "\n") {
+		line := strings.TrimSpace(raw)
+		if line == "" || strings.HasPrefix(line, "#") {
+			kept = append(kept, raw)
+			continue
+		}
+		check := strings.TrimPrefix(line, "export ")
+		k, _, ok := strings.Cut(check, "=")
+		if !ok {
+			kept = append(kept, raw)
+			continue
+		}
+		k = strings.TrimSpace(k)
+		if config.ValidAPIKeyEnvName(k) {
+			kept = append(kept, raw)
+			continue
+		}
+		changed = true
+	}
+	if !changed {
+		return
+	}
+	out := strings.Join(kept, "\n")
+	if out != "" && !strings.HasSuffix(out, "\n") {
+		out += "\n"
+	}
+	_ = os.WriteFile(path, []byte(out), 0o600)
+}
+
 // envFileKeys returns the set of KEY names assigned in a KEY=value file, empty
 // when the file is absent.
 func envFileKeys(path string) map[string]bool {
@@ -117,7 +156,7 @@ func promoteProviderKeysToCredentials(cfg *config.Config) {
 	have := envFileKeys(credPath)
 	for _, p := range cfg.Providers {
 		env := strings.TrimSpace(p.APIKeyEnv)
-		if env == "" || have[env] {
+		if env == "" || have[env] || config.APIKeyEnvLooksLikeSecret(env) || !config.ValidAPIKeyEnvName(env) {
 			continue
 		}
 		val := os.Getenv(env)

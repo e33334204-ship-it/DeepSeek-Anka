@@ -1402,6 +1402,8 @@ export default function App() {
               tabId={activeTabId}
               effort={state.effort}
               onSend={handleSend}
+              onNotice={notice}
+              onOpenVisionSettings={() => setSettingsOpen(true)}
               onCancel={cancel}
               onCycleMode={cycleMode}
               onSetMode={applyMode}

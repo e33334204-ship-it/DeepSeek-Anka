@@ -253,6 +253,8 @@ export const en = {
   "composer.contextItems": "Context items",
   "composer.workspaceReferences": "Workspace references",
   "composer.removeReference": "Remove reference",
+  "composer.textModelImageBlocked": "The current chat model cannot accept images directly. Enable auxiliary vision in Settings and choose a vision model (e.g. Kimi K2.5).",
+  "composer.openVisionSettings": "Open vision settings",
 
   // status bar
   "status.connecting": "connecting…",

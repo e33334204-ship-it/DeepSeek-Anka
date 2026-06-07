@@ -110,12 +110,10 @@ func (a *App) ApplyUpdate() error {
 	a.emitProgress("done", asset.Size, asset.Size, "")
 
 	// Persist the conversation and stop subprocesses before handing off (same as
-	// shutdown). On Linux the binary is now replaced, so relaunch it; on Windows the
-	// installer we launched takes over once we exit.
+	// shutdown). The binary is now replaced in place; relaunch then exit so the
+	// user sees a seamless restart instead of the window vanishing.
 	a.shutdown(a.ctx)
-	if runtime.GOOS == "linux" {
-		_ = relaunch()
-	}
+	_ = relaunch()
 	os.Exit(0)
 	return nil
 }

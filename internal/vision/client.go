@@ -37,7 +37,7 @@ func (c *visionClient) callText(ctx context.Context, cfg *ResolvedConfig, prompt
 
 	b64 := base64.StdEncoding.EncodeToString(img.Data)
 	modelID := cfg.ModelID
-	base := strings.TrimRight(cfg.BaseURL, "/")
+	base := normalizeOpenAICompatBaseURL(cfg.BaseURL)
 
 	var body map[string]any
 	switch strings.ToLower(cfg.API) {
@@ -91,6 +91,9 @@ func (c *visionClient) callText(ctx context.Context, cfg *ResolvedConfig, prompt
 		return "", err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	if strings.Contains(strings.ToLower(base), "kimi.com") {
+		req.Header.Set("User-Agent", "DeepSeek-Anka/1.0")
+	}
 	if cfg.APIKey != "" {
 		if strings.ToLower(cfg.API) == "anthropic" {
 			req.Header.Set("x-api-key", cfg.APIKey)

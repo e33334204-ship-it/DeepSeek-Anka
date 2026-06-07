@@ -254,6 +254,8 @@ export const zh: Record<DictKey, string> = {
   "composer.contextItems": "上下文项目",
   "composer.workspaceReferences": "工作区引用",
   "composer.removeReference": "移除引用",
+  "composer.textModelImageBlocked": "当前聊天模型不能直接接收图片。请先在设置中启用「视觉辅助」，并选择 Kimi K2.5 等视觉模型。",
+  "composer.openVisionSettings": "打开视觉设置",
 
   // 状态栏
   "status.connecting": "连接中…",
@@ -437,8 +439,8 @@ export const zh: Record<DictKey, string> = {
   "settings.plannerModel": "规划模型",
   "settings.plannerNone": "（无 —— 单模型）",
   "settings.vision.title": "视觉辅助",
-  "settings.vision.hint": "使用独立的视觉模型分析图片（不是对话模型）。文本模型粘贴/附加图片时必须配置。",
-  "settings.vision.enabled": "启用视觉辅助",
+  "settings.vision.hint": "仅在当前聊天模型不能接收图片时，用来先看图并递交简洁说明。找不到模型请在下方配置 Moonshot（Kimi）等视觉服务商。",
+  "settings.vision.enabled": "辅助视觉开关",
   "settings.vision.model": "视觉模型",
   "settings.vision.modelPlaceholder": "选择视觉模型…",
   "settings.vision.modelRequired": "启用视觉辅助时必须选择支持图片输入的视觉模型。",

@@ -10,12 +10,13 @@ import (
 
 // PrepareInputOptions mirrors openhanako prepareVisionInputForTextOnlyModel.
 type PrepareInputOptions struct {
-	TargetModel TargetModel
-	Text        string
-	ImagePaths  []string
-	SessionPath string
-	Bridge      *Bridge
-	Warn        func(string)
+	TargetModel   TargetModel
+	Text          string
+	ImagePaths    []string
+	SessionPath   string
+	WorkspaceRoot string
+	Bridge        *Bridge
+	Warn          func(string)
 }
 
 // PrepareInputResult is the prepared prompt text after auxiliary vision.
@@ -39,7 +40,7 @@ func PrepareInputForTextOnlyModel(ctx context.Context, opts PrepareInputOptions)
 
 	var resources []Resource
 	for _, p := range paths {
-		res, err := LoadImageResource(p, p)
+		res, err := LoadImageResource(opts.WorkspaceRoot, p, p)
 		if err != nil {
 			if isRecoverableVisionPrepareError(err) {
 				if opts.Warn != nil {
@@ -53,11 +54,12 @@ func PrepareInputForTextOnlyModel(ctx context.Context, opts PrepareInputOptions)
 	}
 
 	notes, err := opts.Bridge.PrepareResources(ctx, ResourcesOptions{
-		SessionPath: opts.SessionPath,
-		TargetModel: opts.TargetModel,
-		UserRequest: opts.Text,
-		Text:        opts.Text,
-		Resources:   resources,
+		SessionPath:   opts.SessionPath,
+		WorkspaceRoot: opts.WorkspaceRoot,
+		TargetModel:   opts.TargetModel,
+		UserRequest:   opts.Text,
+		Text:          opts.Text,
+		Resources:     resources,
 	})
 	if err != nil {
 		if isRecoverableVisionPrepareError(err) {

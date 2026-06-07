@@ -30,12 +30,13 @@ func (c *Controller) prepareVisionForInput(ctx context.Context, input string) (s
 		return input, nil
 	}
 	result, err := vision.PrepareInputForTextOnlyModel(ctx, vision.PrepareInputOptions{
-		TargetModel: target,
-		Text:        input,
-		ImagePaths:  paths,
-		SessionPath: c.sessionPath,
-		Bridge:      br,
-		Warn:        func(msg string) { c.notice(msg) },
+		TargetModel:   target,
+		Text:          input,
+		ImagePaths:    paths,
+		SessionPath:   c.sessionPath,
+		WorkspaceRoot: c.cpRoot,
+		Bridge:        br,
+		Warn:          func(msg string) { c.notice(msg) },
 	})
 	if err != nil {
 		c.notice(err.Error())
@@ -62,9 +63,10 @@ func (c *Controller) makeVisionPipelineMutator() func(ctx context.Context, msgs 
 		}
 		sp := c.sessionPath // read at call time — may be set after creation
 		result, injected, err := vision.AdaptVisualContextMessages(ctx, msgs, target, vision.PipelineOptions{
-			SessionPath: sp,
-			Bridge:      br,
-			Warn:        func(msg string) { c.notice(msg) },
+			SessionPath:   sp,
+			WorkspaceRoot: c.cpRoot,
+			Bridge:        br,
+			Warn:          func(msg string) { c.notice(msg) },
 		})
 		if err != nil {
 			return msgs, fmt.Errorf("vision pipeline: %w", err)

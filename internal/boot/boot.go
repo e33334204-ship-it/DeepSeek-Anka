@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	"deepseek-anka/internal/agent"
+	"deepseek-anka/internal/capabilities"
 	"deepseek-anka/internal/codegraph"
 	"deepseek-anka/internal/command"
 	"deepseek-anka/internal/config"
@@ -213,7 +214,9 @@ func Build(ctx context.Context, opts Options) (*control.Controller, error) {
 	}
 	searchSpec := builtin.ResolveSearch(cfg.Tools.Search.Engine, cfg.Tools.Search.RgPath, stderr)
 	addBuiltins(reg, cfg.Tools.Enabled, cfg.WriteRootsForRoot(root), bashSpec, searchSpec, stderr, root)
-	wireCapabilities(cfg, reg, stderr)
+	control.SetAttachmentWorkspaceRoot(root)
+	capabilities.SetWorkspaceRoot(root)
+	wireCapabilities(cfg, reg, root, stderr)
 	// Always construct a host, even with no plugins configured, so the controller's
 	// host pointer is stable for the session and `/mcp add` can hot-add into it.
 	pluginHost := plugin.NewHost()

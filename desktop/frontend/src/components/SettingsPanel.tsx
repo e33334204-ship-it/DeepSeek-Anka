@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { asArray } from "../lib/array";
 import { app } from "../lib/bridge";
-import { visionModelRefs } from "../lib/visionModels";
+import { formatVisionModelLabel, visionModelRefs } from "../lib/visionModels";
 import { VISION_PROVIDER_TEMPLATES, visionTemplateHint, visionTemplateLabel } from "../lib/visionProviderTemplates";
 import { normalizeLangPref, useI18n, useT, type LangPref } from "../lib/i18n";
 import { useUpdater } from "../lib/useUpdater";
@@ -577,7 +577,7 @@ function ModelsSection({ s, busy, apply, onManageProviders }: SectionProps & { o
           <option value="">{t("settings.vision.modelPlaceholder")}</option>
           {visionRefs.map((r) => (
             <option key={r} value={r}>
-              {r}
+              {formatVisionModelLabel(r)}
             </option>
           ))}
         </select>

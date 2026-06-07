@@ -52,7 +52,7 @@ func TestResourceFromFile(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := resourceFromFile(imgPath)
+	res, err := resourceFromFile("", imgPath)
 	if err != nil {
 		t.Fatalf("resourceFromFile failed: %v", err)
 	}
@@ -71,7 +71,7 @@ func TestResourceFromFile(t *testing.T) {
 }
 
 func TestResourceFromFile_NotExist(t *testing.T) {
-	_, err := resourceFromFile("/nonexistent/path/img.png")
+	_, err := resourceFromFile("", "/nonexistent/path/img.png")
 	if err == nil {
 		t.Error("expected error for non-existent file")
 	}
@@ -118,7 +118,7 @@ func TestCollectMessageResources(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			resources := collectMessageResources(tt.msg)
+			resources := collectMessageResources(tt.msg, "")
 			if len(resources) != tt.wantLen {
 				t.Errorf("got %d resources, want %d", len(resources), tt.wantLen)
 			}
@@ -161,7 +161,7 @@ func TestPerMessageResources(t *testing.T) {
 		{Role: provider.RoleAssistant, Content: "I see an image."},
 		{Role: provider.RoleUser, Content: "just text"},
 	}
-	byMessage, all := perMessageResources(msgs)
+	byMessage, all := perMessageResources(msgs, "")
 	if len(byMessage) != 3 {
 		t.Errorf("expected 3 by-message entries, got %d", len(byMessage))
 	}

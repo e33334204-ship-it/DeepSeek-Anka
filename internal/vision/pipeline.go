@@ -28,9 +28,10 @@ type VisualResource struct {
 
 // PipelineOptions carries dependencies for the visual context pipeline.
 type PipelineOptions struct {
-	SessionPath string
-	Bridge      *Bridge
-	Warn        func(string)
+	SessionPath   string
+	WorkspaceRoot string
+	Bridge        *Bridge
+	Warn          func(string)
 }
 
 // ImageResourceKey creates a unique resource key for an image based on its
@@ -86,20 +87,24 @@ func resourceFromImageBlock(img ImageInput, index int) *VisualResource {
 }
 
 // resourceFromFile loads a file from disk and creates a VisualResource.
-func resourceFromFile(filePath string) (*VisualResource, error) {
-	data, err := os.ReadFile(filePath)
+func resourceFromFile(workspaceRoot, filePath string) (*VisualResource, error) {
+	abs, err := ResolveAttachmentPath(workspaceRoot, filePath)
+	if err != nil {
+		return nil, err
+	}
+	data, err := os.ReadFile(abs)
 	if err != nil {
 		return nil, err
 	}
 	if len(data) == 0 {
 		return nil, fmt.Errorf("empty file: %s", filePath)
 	}
-	mime := detectMIME(data, filePath)
+	mime := detectMIME(data, abs)
 	hash := sha256.Sum256(data)
 	contentHash := hex.EncodeToString(hash[:])
 	return &VisualResource{
 		Key:         ImageResourceKey(ImageInput{MimeType: mime}, contentHash),
-		Label:       filepath.Base(filePath),
+		Label:       filepath.Base(abs),
 		ContentHash: contentHash,
 		Image:       ImageInput{Data: data, MimeType: mime},
 	}, nil
@@ -108,7 +113,7 @@ func resourceFromFile(filePath string) (*VisualResource, error) {
 // collectMessageResources scans a user message for embedded image references
 // and returns the corresponding VisualResources. It handles both
 // [attached_image: path] markers and @.deepseek-anka/attachments/ path refs.
-func collectMessageResources(msg provider.Message) []VisualResource {
+func collectMessageResources(msg provider.Message, workspaceRoot string) []VisualResource {
 	if msg.Role != provider.RoleUser || msg.Content == "" {
 		return nil
 	}
@@ -122,7 +127,7 @@ func collectMessageResources(msg provider.Message) []VisualResource {
 	}
 	var resources []VisualResource
 	for _, p := range paths {
-		res, err := resourceFromFile(p)
+		res, err := resourceFromFile(workspaceRoot, p)
 		if err != nil {
 			continue // skip unresolvable files
 		}
@@ -152,11 +157,11 @@ func dedupeResources(resources []VisualResource) []VisualResource {
 // perMessageResources collects resources from each user message, preserving
 // the per-message grouping. Returns the per-message lists and the globally
 // deduplicated flat list (matching openhanako's dual byMessage+allResources).
-func perMessageResources(messages []provider.Message) ([][]VisualResource, []VisualResource) {
+func perMessageResources(messages []provider.Message, workspaceRoot string) ([][]VisualResource, []VisualResource) {
 	byMessage := make([][]VisualResource, len(messages))
 	var all []VisualResource
 	for i, msg := range messages {
-		res := collectMessageResources(msg)
+		res := collectMessageResources(msg, workspaceRoot)
 		unique := dedupeResources(res)
 		byMessage[i] = unique
 		all = append(all, unique...)
@@ -197,7 +202,7 @@ func AdaptVisualContextMessages(ctx context.Context, messages []provider.Message
 	}
 
 	// First pass: collect per-message resources, keep global deduplicated set.
-	byMessage, allResources := perMessageResources(messages)
+	byMessage, allResources := perMessageResources(messages, opts.WorkspaceRoot)
 	if len(allResources) == 0 {
 		return messages, 0, nil
 	}
@@ -214,10 +219,11 @@ func AdaptVisualContextMessages(ctx context.Context, messages []provider.Message
 
 	userRequest := userRequestFromMessages(messages)
 	prepared, err := opts.Bridge.PrepareResources(ctx, ResourcesOptions{
-		SessionPath: opts.SessionPath,
-		TargetModel: target,
-		UserRequest: userRequest,
-		Resources:   bridgeResources,
+		SessionPath:   opts.SessionPath,
+		WorkspaceRoot: opts.WorkspaceRoot,
+		TargetModel:   target,
+		UserRequest:   userRequest,
+		Resources:     bridgeResources,
 	})
 	if err != nil {
 		if opts.Warn != nil {

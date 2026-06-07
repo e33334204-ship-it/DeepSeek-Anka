@@ -63,7 +63,7 @@ func (understandImage) Execute(ctx context.Context, args json.RawMessage) (strin
 	if br == nil {
 		return "", fmt.Errorf("vision is disabled; enable [vision] in reasonix.toml and configure a vision-capable model")
 	}
-	resource, err := vision.LoadImageResource(path, path)
+	resource, err := vision.LoadImageResource(capabilities.WorkspaceRoot(), path, path)
 	if err != nil {
 		return "", err
 	}

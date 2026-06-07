@@ -22,6 +22,7 @@ type Bridge struct {
 	resolve ResolveVisionConfigFunc
 	client  *visionClient
 	now     func() int64
+	workspaceRoot string
 
 	mu              sync.Mutex
 	analysisByPrompt map[string]cacheEntry
@@ -38,7 +39,7 @@ type cacheEntry struct {
 }
 
 // NewBridge builds a vision bridge. Returns nil when vision is disabled.
-func NewBridge(cfg *config.Config) (*Bridge, error) {
+func NewBridge(cfg *config.Config, workspaceRoot string) (*Bridge, error) {
 	if cfg == nil || !cfg.Vision.Enabled {
 		return nil, nil
 	}
@@ -57,6 +58,7 @@ func NewBridge(cfg *config.Config) (*Bridge, error) {
 		resolve:          resolve,
 		client:           client,
 		now:              func() int64 { return time.Now().UnixMilli() },
+		workspaceRoot:    strings.TrimSpace(workspaceRoot),
 		analysisByPrompt: map[string]cacheEntry{},
 		noteByPath:       map[string]*NoteEntry{},
 		maxCacheEntries:  maxCacheEntries,
@@ -256,7 +258,7 @@ func (b *Bridge) InjectNotes(messages []string, sessionPath string) ([]string, i
 
 // Analyze is a convenience wrapper for single-image analysis (tools/refs).
 func (b *Bridge) Analyze(ctx context.Context, imagePath, userRequest string) (string, error) {
-	resource, err := LoadImageResource(imagePath, imagePath)
+	resource, err := LoadImageResource(b.workspaceRoot, imagePath, imagePath)
 	if err != nil {
 		return "", err
 	}
@@ -289,11 +291,12 @@ type PrepareResult struct {
 }
 
 type ResourcesOptions struct {
-	SessionPath string
-	TargetModel TargetModel
-	UserRequest string
-	Text        string
-	Resources   []Resource
+	SessionPath   string
+	WorkspaceRoot string
+	TargetModel   TargetModel
+	UserRequest   string
+	Text          string
+	Resources     []Resource
 }
 
 func (b *Bridge) analyzeImage(ctx context.Context, cfg *ResolvedConfig, img ImageInput, index int, userRequest, sessionPath string) (string, error) {

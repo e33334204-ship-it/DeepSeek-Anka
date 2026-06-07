@@ -14,7 +14,7 @@ import (
 
 // wireCapabilities initializes openhanako-ported services and filters the tool
 // registry so disabled capabilities are not exposed to the model.
-func wireCapabilities(cfg *config.Config, reg *tool.Registry, stderr io.Writer) {
+func wireCapabilities(cfg *config.Config, reg *tool.Registry, workspaceRoot string, stderr io.Writer) {
 	var (
 		vb  *vision.Bridge
 		bm  *browser.Manager
@@ -23,7 +23,7 @@ func wireCapabilities(cfg *config.Config, reg *tool.Registry, stderr io.Writer) 
 	)
 
 	if cfg.Vision.Enabled {
-		vb, err = vision.NewBridge(cfg)
+		vb, err = vision.NewBridge(cfg, workspaceRoot)
 		if err != nil {
 			fmt.Fprintf(stderr, "warning: vision bridge disabled: %v\n", err)
 		}
