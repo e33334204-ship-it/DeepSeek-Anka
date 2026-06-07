@@ -167,7 +167,7 @@ func signFiles(files []string) error {
 func genManifest(dir, version, tag string) error {
 	repo := os.Getenv("GITHUB_REPOSITORY")
 	if repo == "" {
-		repo = "esengine/reasonix"
+		repo = "e33334204-ship-it/DeepSeek-Anka"
 	}
 	m := update.Manifest{
 		Version:      version,
@@ -207,6 +207,10 @@ func genManifest(dir, version, tag string) error {
 
 // matchPlatform returns the platform key embedded in a file name, or "" if none.
 func matchPlatform(name string) string {
+	lower := strings.ToLower(name)
+	if strings.HasSuffix(lower, ".exe") && strings.Contains(lower, "deepseek-anka") {
+		return "windows-amd64"
+	}
 	for _, p := range platforms {
 		if strings.Contains(name, p) {
 			return p
